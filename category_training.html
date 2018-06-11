@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Category Training Task</title>
+    <script src="jspsych-master/jspsych.js"></script>
+    <script src="jspsych-master/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych-master/plugins/jspsych-image-keyboard-response.js"></script>
+    <link rel="stylesheet" href="jspsych-master/css/jspsych.css"></link>
+    <style>
+
+    div.ex1 {
+      position: absolute;
+      left: 0px;
+      }
+
+    div.ex2 {
+      position: absolute;
+      left: 200px
+      }
+
+    div.center {
+      position: absolute;
+      left: 300px
+    }
+
+    div.ex3 {
+      position: absolute;
+      left: 400px
+      }
+
+    div.ex4 {
+      position: absolute;
+      left: 600px
+      }
+
+    </style>
+  </head>
+  <body></body>
+
+  <script>
+  var stim_width_height = 200;
+  var min_dot_density = 100;
+  var max_dot_density = 2000;
+  var min_line_density = 30;
+  var max_line_density = 550;
+  var dim_a = 0.5;
+  var dim_b = 0.5;
+
+  var rel_bw_distance = 0.2;
+  var rel_wi_distance = 0.2;
+  var irr_distance = 0.2;
+
+    /* create timeline */
+    var timeline = [];
+
+    /* define welcome message trial */
+    var welcome = {
+      type: "html-keyboard-response",
+      stimulus: "Welcome to the experiment. Press any key to begin."
+    };
+    timeline.push(welcome);
+
+    /* define instructions trial */
+    var instructions = {
+      type: "html-keyboard-response",
+      stimulus: "<p>The first task in this experiment is categorization training. You will be shown a cell and asked" +
+      "<em>Is this a Tig (T) or a Bep (B)?</em></p><p>To indicate that the cell is a Tig, " +
+      "<em>press T</em> on the keyboard.</p><p>To indicate that the cell is a Bep, " +
+      "<em>press B</em> on the keyboard.</p><p> <p>Initially you'll need to guess, "+
+      "but you should eventually learn to distinguish the two types of cell.</p>" +
+          "<div style='position: relative;'><img src='jspsych-master/img/tigbep.png'></img>" +
+          "<p class='small'> ex. <strong>Press T </strong></p></div>" +
+          "<p>Press any key to begin.</p>",
+      post_trial_gap: function() { return 2000; }
+    }
+    timeline.push(instructions);
+
+    /* test trials */
+    var pause = {
+      type: 'html-keyboard-response',
+      stimulus: '',
+      trial_duration: 500,
+      choices: jsPsych.NO_KEYS,
+      data: {test_part: 'fixation'}
+    }
+
+    var test = {
+      type: "html-keyboard-response",
+      stimulus: '',
+      trial_duration: 4000,
+      choices: ['T', 'F',],
+      on_start: function(trial) {
+        dimension = relevant_dimension;
+        sunburst = randomize_sunburst();
+        correct_response = tig_bep(sunburst);
+        stimulus = calculate_sunburst_params(dimension, sunburst);
+        question = '<div style="position: relative; width:'+stim_width_height*4+'px; height: 100px;">';
+        question += '<div class="center"><p>"Is this a Tig (T) or a Fep (F)?"</p></div>';
+        trial.stimulus = stimulus;
+        trial.data = {
+          test_part: 'test',
+          dimension: dimension,
+          correct_response: correct_response,
+          stimulus: stimulus,
+        }
+      },
+      on_finish: function(data) {
+        data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      },
+    }
+
+    /* determines which dimension is relevant throughout the experiment */
+    var relevant_dimension = jsPsych.randomization.sampleWithoutReplacement(['dots', 'lines'], 1) [0];
+
+    /* randomly samples a particular sunburst from the scene */
+    function randomize_sunburst() {
+      return jsPsych.randomization.sampleWithoutReplacement([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 1)[0];
+    }
+    /* determines if the sunburst is a tig or a bep */
+    function tig_bep(sunburst) {
+      if (sunburst <= 8) {var correct = 'T';}
+      else {var correct = 'F';}
+      return correct;
+    }
+
+    function x_coordinate(sunburst) {
+      var x_dim;
+      if (sunburst <= 4) {x_dim = 0;}
+      else if (sunburst >= 5 && sunburst <= 8) {x_dim = 1;}
+      else if (sunburst >= 9 && sunburst <= 12) {x_dim = 2;}
+      else {x_dim = 3;}
+      return x_dim;
+    }
+
+    function y_coordinate(sunburst) {
+      var y_dim;
+      if (sunburst % 4 == 1) {y_dim = 0;}
+      else if (sunburst % 4 == 2) {y_dim = 1;}
+      else if (sunburst % 4 == 3) {y_dim = 2;}
+      else {y_dim = 3;}
+      return y_dim;
+    }
+
+    function x_dim_val(x, bw, wi){
+      var x_dim;
+      if(x == 0){
+        x_dim = 0.5 - (bw/2) - wi;
+      } else if(x == 1) {
+        x_dim = 0.5 - (bw/2);
+      } else if(x == 2) {
+        x_dim = 0.5 + (bw/2);
+      } else {
+        x_dim = 0.5 + (bw/2) + wi;
+      }
+      return x_dim;
+    }
+
+    function y_dim_val(y, irr) {
+      var y_dim;
+      if(y == 0){
+        y_dim = 0.5 - (irr/2) - irr;
+      } else if(y == 1) {
+        y_dim = 0.5 - (irr/2);
+      } else if(y == 2) {
+        y_dim = 0.5 + (irr/2);
+      } else {
+        y_dim = 0.5 + (irr/2) + irr;
+      }
+      return y_dim;
+    }
+
+    function calculate_sunburst_params(dimension, sunburst) {
+      var xCoordinate = x_coordinate(sunburst);
+      var yCoordinate = y_coordinate(sunburst);
+      if (dimension == 'dots') {
+        var rel_dim = x_dim_val(xCoordinate, rel_bw_distance, rel_wi_distance);
+        var irr_dim = y_dim_val(yCoordinate, irr_distance);
+        return generate_stim(rel_dim, irr_dim);
+      } else {
+        var rel_dim = y_dim_val(yCoordinate, irr_distance);
+        var irr_dim = x_dim_val(xCoordinate, rel_bw_distance, rel_wi_distance);
+        return generate_stim(rel_dim, irr_dim);
+      }
+    }
+
+    function generate_stim(dot_dim, line_dim) {
+      // params
+      var w = stim_width_height;
+      var r = stim_width_height/4;
+      var x = w / 2;
+      var y = w / 2;
+      var circle_r = stim_width_height / 200;
+      var minLineLength = 10;
+      var dot_density = min_dot_density + (max_dot_density-min_dot_density)*dot_dim;
+      var line_density = min_line_density + (max_line_density-min_line_density)*line_dim;
+
+      // svg string
+      var str = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + w + '">'
+
+      //Code for drawing the lines that come out of the circle.
+      //Each line starts in the center of the circle and is drawn outward
+      for (var i = 0; i < line_density; i++) {
+        var angle = Math.random() * Math.PI / 2;
+        var lineLength = r + minLineLength + (r - minLineLength) * Math.random();
+        var x2 = Math.cos(angle) * lineLength;
+        var y2 = Math.sin(angle) * lineLength;
+        if (Math.random() < 0.5) {
+          x2 = -x2;
+        }
+        if (Math.random() < 0.5) {
+          y2 = -y2;
+        }
+        x2 = x + x2;
+        y2 = y + y2;
+        str += '<line x1="' + x + '" y1="' + y + '" x2="' + x2 + '" y2="' + y2 + '" style="stroke:rgb(65,105,225); stroke-width:1;" />';
+      }
+
+      // draw circle
+      str += '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" style="stroke:rgb(65,105,225); stroke-width:2; fill: rgb(255,255,255);"/>'
+
+      //Code for creating and dispersing the dots
+      for (var j = 0; j < dot_density; j++) {
+        do {
+          var x2 = Math.random() * 2 * r + x - r;
+          var y2 = Math.random() * 2 * r + y - r;
+        } while ((Math.pow(x - x2, 2) + Math.pow(y - y2, 2)) > Math.pow(r - circle_r - 2, 2));
+        str += '<circle cx="' + x2 + '" cy="' + y2 + '" r="' + circle_r + '" style="fill:rgb(65,105,225);" />';
+      }
+
+      str += "</svg>";
+
+      return str;
+    }
+
+    /* determines if the last answer was correct */
+    function last_correct() {
+      return jsPsych.data.get().last(1).values()[0].correct;
+    }
+
+    function correct_feedback() {
+      var correct_response = jsPsych.data.get().last(1).values()[0].correct_response;
+      if (correct_response == 'T') {var feedback = 'Tig'}
+      else {var feedback = 'Fep'}
+      return feedback;
+    }
+
+    var old_feedback = {
+      type: "html-keyboard-response",
+      stimulus: function() {
+        if(last_correct()){
+          return "<p>Correct, this is a " + correct_feedback() + "!</p>"
+        }
+        else {
+          return "<p>Incorrect, this is a " + correct_feedback() + "!</p>"
+        }
+      },
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 500
+    }
+
+    var feedback = {
+      type: "html-keyboard-response",
+      stimulus: function () {
+        if(last_correct() == true) {
+          var stim = "<div style='position: relative; border: 11px solid limegreen; padding: 20px;'>" +
+            jsPsych.data.get().last(1).values()[0].stimulus +
+            "<p style='position:absolute; top: 100%; width: 100%; left: 0;'>Correct, this is a " +
+            correct_feedback() + "!</p>" + "</div>";
+          return stim;
+        } else {
+          var stim = "<div style='position: relative; border: 11px solid red; padding: 20px;'>" +
+            jsPsych.data.get().last(1).values()[0].stimulus +
+            "<p style='position:absolute; top: 100%; width: 100%; left: 0;'>Incorrect, this is a " +
+            correct_feedback() + "!</p>" + "</div>";
+          return stim;
+        }
+      },
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 500,
+    }
+
+    var test_procedure = {
+      timeline: [pause, test, feedback],
+      //timeline_variables: test_stimuli,
+      repetitions: 20,
+      randomize_order: true
+    }
+    timeline.push(test_procedure);
+
+    var min_dot_density = 100;
+    var max_dot_density = 2000;
+    var min_line_density = 30;
+    var max_line_density = 550;
+    var dim_a = 0.5;
+    var dim_b = 0.5;
+
+    document.querySelector('body').innerHTML = generate_stim(0.5, 0.5);
+
+    /* define debrief */
+
+    var debrief_block = {
+      type: "html-keyboard-response",
+      stimulus: function() {
+        var trials = jsPsych.data.get().filter({test_part: 'test'});
+        var correct_trials = trials.filter({correct: true});
+        var accuracy = Math.round(correct_trials.count() / trials.count() * 100);
+        var rt = Math.round(correct_trials.select('rt').mean());
+
+        return "<p>You responded correctly on "+accuracy+"% of the trials.</p>"+
+        "<p>Your average response time was "+rt+"ms.</p>"+
+        "<p>Press any key to complete the experiment. Thank you!</p>";
+      }
+    };
+    timeline.push(debrief_block);
+
+    /* start the experiment */
+    jsPsych.init({
+      timeline: timeline,
+      on_finish: function() {
+        console.log(jsPsych.data.get().ignore('stimulus').json());
+      }
+    });
+
+  </script>
+</html>
