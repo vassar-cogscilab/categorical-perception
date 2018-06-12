@@ -20,7 +20,8 @@
 
     div.center {
       position: absolute;
-      left: 300px
+      width:100vw;
+      left: 0;
     }
 
     div.ex3 {
@@ -32,6 +33,15 @@
       position: absolute;
       left: 600px
       }
+
+    .oddball-stim {
+      display: inline-block;
+      padding: 10px;
+      box-shadow: 0 4px 2px 0 rgba(0,0,0,0.5);
+      border: 1px solid #ccc;
+      margin: 0px 10px;
+      background-color: white;
+    }
 
     </style>
   </head>
@@ -63,7 +73,7 @@
     /* define instructions trial */
     var instructions = {
       type: "html-keyboard-response",
-      stimulus: "<p>The first task in this experiment is categorization training. You will be shown a cell and asked" +
+      stimulus: "<p>The first task in this experiment is categorization training. You will be shown a cell and asked " +
       "<em>Is this a Tig (T) or a Bep (B)?</em></p><p>To indicate that the cell is a Tig, " +
       "<em>press T</em> on the keyboard.</p><p>To indicate that the cell is a Bep, " +
       "<em>press B</em> on the keyboard.</p><p> <p>Initially you'll need to guess, "+
@@ -90,18 +100,16 @@
       trial_duration: 4000,
       choices: ['T', 'F',],
       on_start: function(trial) {
-        dimension = relevant_dimension;
-        sunburst = randomize_sunburst();
-        correct_response = tig_bep(sunburst);
-        stimulus = calculate_sunburst_params(dimension, sunburst);
-        question = '<div style="position: relative; width:'+stim_width_height*4+'px; height: 100px;">';
-        question += '<div class="center"><p>"Is this a Tig (T) or a Fep (F)?"</p></div>';
+        var random = randomize_sunburst();
+        var sunburst = '<div class="oddball-stim">' + calculate_sunburst_params(random) + '</div>';
+        var correct_response = tig_bep(random);
+        var question = '<div class="center"><p>"Is this a Tig (T) or a Fep (F)?"</p></div>';
+        var stimulus = sunburst + question;
         trial.stimulus = stimulus;
         trial.data = {
           test_part: 'test',
-          dimension: dimension,
           correct_response: correct_response,
-          stimulus: stimulus,
+          stimulus: sunburst,
         }
       },
       on_finish: function(data) {
@@ -169,10 +177,10 @@
       return y_dim;
     }
 
-    function calculate_sunburst_params(dimension, sunburst) {
+    function calculate_sunburst_params(sunburst) {
       var xCoordinate = x_coordinate(sunburst);
       var yCoordinate = y_coordinate(sunburst);
-      if (dimension == 'dots') {
+      if (relevant_dimension == 'dots') {
         var rel_dim = x_dim_val(xCoordinate, rel_bw_distance, rel_wi_distance);
         var irr_dim = y_dim_val(yCoordinate, irr_distance);
         return generate_stim(rel_dim, irr_dim);
@@ -237,42 +245,34 @@
       return jsPsych.data.get().last(1).values()[0].correct;
     }
 
-    function correct_feedback() {
+    function category_feedback() {
       var correct_response = jsPsych.data.get().last(1).values()[0].correct_response;
       if (correct_response == 'T') {var feedback = 'Tig'}
       else {var feedback = 'Fep'}
       return feedback;
     }
 
-    var old_feedback = {
-      type: "html-keyboard-response",
-      stimulus: function() {
-        if(last_correct()){
-          return "<p>Correct, this is a " + correct_feedback() + "!</p>"
-        }
-        else {
-          return "<p>Incorrect, this is a " + correct_feedback() + "!</p>"
-        }
-      },
-      choices: jsPsych.NO_KEYS,
-      trial_duration: 500
-    }
-
     var feedback = {
       type: "html-keyboard-response",
       stimulus: function () {
-        if(last_correct() == true) {
-          var stim = "<div style='position: relative; border: 11px solid limegreen; padding: 20px;'>" +
+        var lastCorrect = last_correct();
+        var html = "<style>"
+        if (lastCorrect == true) {
+          html += ".oddball-stim { border: 11px solid limegreen; padding: 0;} ";
+          html += "</style>"
+          html +=
             jsPsych.data.get().last(1).values()[0].stimulus +
-            "<p style='position:absolute; top: 100%; width: 100%; left: 0;'>Correct, this is a " +
-            correct_feedback() + "!</p>" + "</div>";
-          return stim;
+            "<p style='position:absolute; width: 100%; left: 0;'>Correct, this is a " +
+            category_feedback() + "!</p>"
+          return html;
         } else {
-          var stim = "<div style='position: relative; border: 11px solid red; padding: 20px;'>" +
+          html += ".oddball-stim { border: 11px solid red; padding: 0;} ";
+          html += "</style>"
+          html +=
             jsPsych.data.get().last(1).values()[0].stimulus +
-            "<p style='position:absolute; top: 100%; width: 100%; left: 0;'>Incorrect, this is a " +
-            correct_feedback() + "!</p>" + "</div>";
-          return stim;
+            "<p style='position:absolute; width: 100%; left: 0;'>Incorrect, this is a " +
+            category_feedback() + "!</p>"
+          return html;
         }
       },
       choices: jsPsych.NO_KEYS,
