@@ -40,8 +40,8 @@
     var y = w / 2;
     var circle_r = 2;
     var minLineLength = 10;
-    var dot_density = min_dot_density + (max_dot_density-min_dot_density)*dot_dim;
-    var line_density = min_line_density + (max_line_density-min_line_density)*line_dim;
+    dot_density = min_dot_density + (max_dot_density-min_dot_density)*dot_dim;
+    line_density = min_line_density + (max_line_density-min_line_density)*line_dim;
     // svg string
     var str = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + w + '">'
     //Code for drawing the lines that come out of the circle.
@@ -76,7 +76,8 @@
   }
   function draw() {
     var str = generate_stim(dim_a, dim_b);
-    document.querySelector('#stim_target').innerHTML = str;
+    var params = '<div><p>' + dot_density + ' dots and ' + line_density + ' lines </p></div>'
+    document.querySelector('#stim_target').innerHTML = str + params;
   }
 </script>
 
