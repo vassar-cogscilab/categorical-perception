@@ -43,7 +43,7 @@
     var irr_distance = 0.25;
     var three = 0;
 
-    /* adjusts the particular distance depending on correctness of the response */
+    /* adjusts the particular distance for every three correct responses */
     function adjust_distance(distance, correct) {
       if(correct) {three += 1;}
       else {distance *= 1.15;}
@@ -51,25 +51,67 @@
       return distance;
     }
 
-    /* create timeline */
     var timeline = [];
 
-    /* welcome message */
     var welcome = {
       type: "html-keyboard-response",
-      stimulus: "<p>Welcome to the experiment.</p> \
-      <p>In this experiment, you will asked to complete two alternating tasks: \
-      an identification task, and a same-different task.</p> \
-      <p>The experiment should take approximately __ minutes to complete, \
-      but it will depend on how quickly you are able to complete the training task. \
-      Some people will take less time, and some may take longer.</p> \
-      <p>Each tasks' difficulty is adjusted based off of your performance, and they may become very difficult.</p> \
-      <p>Please ensure that you are able to devote your full attention to training. \
-      If you are unable to do so, we strongly encourage you not to continue with the experiment.</p>\
-    	<p>Do you wish to proceed? If so, press any key to continue. \
-      If you do not want to complete the experiment, please close your browser window and return the HIT.</p></div>"
+      stimulus: "Welcome to the experiment. Press any key to begin."
     };
-//    timeline.push(welcome);
+    timeline.push(welcome);
+
+    var consent_form = {
+      type: "html-keyboard-response",
+      stimulus: "<p>This experiment is being conducted on Prolific, an online recruitment platform. </p> \
+      <p>It consists of several tasks, each of which involves viewing various stimuli </p> \
+      <p>and making simple judgments about them. The study takes approximately X minutes to complete. </p> \
+      <p>Participation poses minimal risk, meaning the risk is no greater than that of normal, everyday activities. </p> \
+      <p>Your anonymous data, identified only by your Prolific worker ID, will be used for research purposes. </p> \
+      <p>For your participation, you will receive a small payment of $X upon completion of the experiment. </p> \
+      <p>You are free to stop the experiment by closing your browser window at any time. </p> \
+      <p>If you have any questions, you can contact: </p> \
+      <p><strong>Prof. Jan Andrews</strong> at <link>andrewsj@vassar.edu</link>, or <strong>Prof. Josh de Leeuw</strong> at <link>jdeleeuw@vassar.edu</link></p> \
+      <p>By clicking 'I agree,' you affirm that you are at least 18 years of age, which is the minimum age to participate in this study.</p> ",
+      post_trial_gap: 500,
+    }
+    //timeline.push(consent_form);
+
+    var overview = {
+      type: "html-keyboard-response",
+      stimulus: "<p>In this study, you will asked to complete two alternating tasks: an oddball task and a judgement task. </p> \
+      <p>Before the experiment begins, we will acquaint you with each of the tasks. The tasks may become very difficult. </p> \
+      <p>During the experiment, you will have periodic opportunities to take a short break as instructed. </p> \
+      <p>Please ensure that you are able to devote your full attention to each task and do your best to answer correctly. </p> \
+      <p>If you are unable to do so, we strongly encourage you not to continue with the experiment. </p> \
+      <p>Do you wish to proceed? If so, press ENTER to continue! </p> \
+      <p>If you do not want to complete the experiment, please close your browser window. </p>",
+      post_trial_gap: 500,
+    }
+    timeline.push(overview);
+
+    var oddball_instructions = {
+      type: "html-keyboard-response",
+      choices: '1',
+      stimulus: "In this first task, four sunbursts will appear in the center of the screen. <p> \
+      <p> If the <strong>first</strong> star from the left is different from the others, press 1. </p> \
+      <p> If the <strong>second</strong> star from the left is different from the rest, press 2. </p> \
+      <p>If the <strong>third</strong> star from the left is different from the rest press 3. </p> \
+      <p> If the <strong>fourth</strong> star from the left is different from the rest, press 4. </p> \
+      <p><div style='float: left;'><img src='jspsych-master/img/example_ob.png'></img></p> \
+      <p class='small'> ex. <strong>Press 1</strong> to continue</p></div>",
+      post_trial_gap: 500,
+    };
+    timeline.push(oddball_instructions);
+
+    var oddball_instructions_pt2 = {
+      type: "html-keyboard-response",
+      stimulus: "<p> On each trial you will have up to 4 seconds to enter your response. </p> \
+      <p>After that, it will move on to the next trial, so please do your best to respond within that time! </p> \
+      <p>After you respond, you will receive feedback as to whether your response was correct, </p> \
+      <p>indicated by a green box (for correct) and red box (for incorrect). </p> \
+      <p>Press any key to continue and try out one trial!</p>",
+      post_trial_gap: 500,
+    };
+    timeline.push(oddball_instructions_pt2);
 
     /* determines if participant is in the experimental or control group */
     var group = jsPsych.randomization.sampleWithoutReplacement(['experimental', 'control'], 1) [0];
@@ -77,42 +119,147 @@
     /* determines which dimension is relevant throughout the experiment */
     var relevant_dimension = jsPsych.randomization.sampleWithoutReplacement(['dots', 'lines'], 1) [0];
 
-    /*  categorization trainging(CT) task instructions for experimental group */
     var experimental_instructions = {
       type: "html-keyboard-response",
-      stimulus: "<p>The first task in this experiment is categorization training. You will be shown a cell and asked <em>Is this a Tig (T) or a Bep (B)?</em></p> \
-    	<p>To indicate that the cell is a Tig, <em>press T</em> on the keyboard.</p> \
-    	<p>To indicate that the cell is a Bep, <em>press B</em> on the keyboard.</p> \
-    	<p>Initially you'll need to guess, but you should eventually learn to distinguish the two types of cell.</p> \
-      <p>Press any key to continue.</p>"
+      choices: 'T',
+      stimulus: "In this second task, you will be asked to identify two different kinds of sunbursts. </p> \
+      <p>You will be presented with one sunburst at a time and asked, <em>Is this a <strong>Tig (T)</strong> or a <strong>Fep (F)</strong>?</em></p> \
+    	<p>To indicate that the cell is a <strong>Tig</strong>, <em>press <strong>T</strong></em> on the keyboard. </p> \
+    	<p>To indicate that the cell is a <strong>Fep</strong>, <em>press <strong>F</strong></em> on the keyboard. </p> \
+      <p><div style='float: left;'><img src='jspsych-master/img/example_ct.png'></img></p> \
+      <p class='small'> ex. <strong>Press T</strong> to continue</p></div></p>",
+      post_trial_gap: 500,
     };
-//    if (group == 'experimental') {timeline.push(experimental_instructions);}
+    /*if (group == 'experimental')*/ {timeline.push(experimental_instructions);}
 
-    /* number judgement(NJ) task instructions for control group */
+    var experimental_instructions_pt2 = {
+      type: "html-keyboard-response",
+      stimulus: "After you respond, you will receive feedback as to whether your response was correct. </p> \
+      <p>Initially you'll need to guess, but you should eventually learn to distinguish the two types. </p> \
+      <p>Just like before, you will have up to 4 seconds to enter your response. </p> \
+      <p>After that, it will move on to the next trial, so please do your best to respond within that time! </p> \
+      <p>Press any key to continue!</p>",
+      post_trial_gap: 500,
+    };
+    /*if (group == 'experimental')*/ {timeline.push(experimental_instructions_pt2);}
+
     var control_instructions = {
       type: "html-keyboard-response",
-      stimulus: "<p>The first task in this experiment involves making judgements about the number of dots or lines in a particular stimuli.</p> \
-      <p>You will be shown a cell and asked <em>Are there more or less than ___ dots/lines?</em></p> \
-      <p>To indicate that the cell has more dots/lines than the amount stated, <em>press M</em> on the keyboard.</p> \
-      <p>To indicate that the cell has less dots/lines than the amount stated, <em>press L</em> on the keyboard.</p> \
-      <p>Press any key to continue.</p>"
+      choices: 'T',
+      stimulus: "In this second task, you will be asked to estimate the relative amount of dots or lines on a particular sunburst. </p> \
+      <p>You will be presented with one sunburst at a time and asked to respond to statements like, </p> \
+      <p><em>There are <strong>more</strong> than 20 <strong>dots</strong>. </em></p> \
+      <p><em>There are <strong>less</strong> than 40 <strong>lines</strong>. </em></p> \
+      <p>To indicate <strong>True</strong>, <em>press <strong>T</strong></em> on the keyboard. </p> \
+      <p>To indicate <strong>False</strong>, <em>press <strong>F</strong></em> on the keyboard. </p> \
+      <p><div class='center';'><img src='jspsych-master/img/example_ct.png'></img></p> \
+      <p class='small'> ex. <strong>Press T</strong> to continue</p></div></p>",
+      post_trial_gap: 500,
     };
-//    if (group == 'control') {timeline.push(control_instructions);}
+    //if (group == 'control') {timeline.push(control_instructions);}
 
-    /* odd-ball(OB) task instructions */
-    var odd_ball_instructions = {
+    var control_instructions_pt2 = {
       type: "html-keyboard-response",
-      stimulus: "<p>In this experiment, four stars will appear in the center of the screen. </p>" +
-      "<p> If the <strong>first</strong> star from the left is different" +
-      "from the others, press 1. </p><p>If the <strong>second</strong> star from the left is different"+
-      "from the rest, press 2. </p><p> If the <strong>third</strong> star from the left is different from the rest"+
-      "press 3. </p><p> If the <strong>fourth</strong> star from the left is different from the rest, press 4. </p>" +
-          "<div style='float: left;'><img src='img/lineup.png'></img>" +
-          "<p class='small'> ex. <strong>Press 3 </strong></p></div>" +
-      "<p>Press any key to begin.</p>",
-      post_trial_gap: function() { return 2000; }
+      stimulus: "<p>After you respond, you will receive feedback as to whether your response was correct. </p> \
+      <p>It may be difficult to estimate the amount of dots or lines, but just try your best to answer correctly. </p> \
+      <p>Just like before, you will have up to 4 seconds to enter your response. </p> \
+      <p>After that, it will move on to the next trial, so please do your best to respond within that time! </p> \
+      <p>Press any key to continue!</p>",
+      post_trial_gap: 500,
     };
-//    timeline.push(sd_instructions);
+    //if (group == 'control') {timeline.push(control_instructions_pt2);}
+
+    var practice_instructions = {
+      type: "html-keyboard-response",
+      stimulus: "<p>These two tasks will alternate during the experiment. How about trying out a few for practice? </p> \
+          <p>We recommend you use your left hand for the first task (keys 1, 2, 3, 4) and your right hand for the second task (keys T and F). </p> \
+          <p>Press any key to continue!</p>",
+          post_trial_gap: 500,
+    };
+    {timeline.push(practice_instructions);}
+
+    var practice_correct = 0;
+
+    var practice_round = {
+      type: "html-keyboard-response",
+      trial_duration: 4000,
+      timeline_variables: [
+        { trial_type: 'dot_oddball' },
+        { trial_type: 'line_oddball' },
+        { trial_type: 'tig_category' },
+        { trial_type: 'fep_category' }
+      ],
+      sample: {
+        type: 'without-replacement',
+        size: 4,
+      },
+      randomize_order: true,
+      repetitions: 4,
+      choices: function(trial_type) {
+        if ('dot_oddball') {return ['1', '2', '3', '4']}
+        else if ('line_oddball') {return ['1', '2', '3', '4']}
+        else if ('tig_category'){return ['T', 'F']}
+        else {return ['T', 'F']}
+      },
+      stimulus: function(trial_type) {
+        if ('dot_oddball') {return generate_set(0.7, 0.7, 0.3, 0.7, '2')}
+        else if ('line_oddball') {return generate_set(0.3, 0.3, 0.3, 0.7, '4')}
+        else if ('tig_category'){return '<div class="oddball-stim">' + calculate_sunburst_values(4) + '</div>'}
+        else {return '<div class="oddball-stim">' + calculate_sunburst_values(13) + '</div>'}
+      },
+      on_start: function(trial) {
+        if (trial.trial_type == 'dot_oddball') {
+          trial.data = {correct_response: '2', stimulus: trial.stimulus,}
+          var question = '<div class="center"><p>Choose the odd-ball</p></div>';
+          trial.stimulus += question;
+        } else if (trial.trial_type == 'line_oddball'){
+          trial.data = {correct_response: '4', stimulus: trial.stimulus,}
+          var question = '<div class="center"><p>Choose the odd-ball</p></div>';
+          trial.stimulus += question;
+        } else if (trial.trial_type == 'tig_category'){
+          trial.data = {correct_response: 'T', stimulus: trial.stimulus,}
+          var question = '<div class="center"><p>Is this a Tig(T) or a Fep(F)?</p></div>';
+          trial.stimulus += question;
+        } else {
+          trial.data = {correct_response: 'F', stimulus: trial.stimulus,}
+          var question = '<div class="center"><p>Is this a Tig(T) or a Fep(F)?</p></div>';
+          trial.stimulus += question;
+        }
+      },
+      on_finish: function(data) {
+        data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+        if (data.correct) {
+          practice_correct += 1;
+        }
+      },
+      post_trial_gap: 500,
+    }
+    //{timeline.push(practice_round);}
+
+    var again_instructions = {
+      type: "html-keyboard-response",
+      stimulus: "<p>Almost! You must get every trial correct in the practice phase in order to proceed</p> \
+          <p>Remember, it is best to use your <strong>left</strong> hand for the first task<strong>(1, 2, 3, 4)</strong>"
+          + "and your <strong>right</strong> hand for the second task<strong>(T, F)</strong>. </p> \
+          <p>Please try again. Press any key to continue.</p>",
+          post_trial_gap: 500,
+    };
+
+    var round_two = {
+      timeline: [again_instructions, practice_round],
+    }
+    //if (practice_correct < 4) {timeline.push(round_two);}
+
+    var last_remarks = {
+      type: "html-keyboard-response",
+      stimulus:/* "<p>Hooray! You’ve completed the practice phase! </p> \
+      <p>During the experiment, a bar will appear at the bottom of the screen </p> \
+      <p>that will get longer when you succeed as the tasks get more difficult. </p> \
+      <p>(Try to get it to be as long as you can!) </p> \ */
+      "<p>Okay, you’re finally ready to start the experiment! Press any key to begin! </p>"
+    };
+    {timeline.push(last_remarks);}
+
 
     /* universal fixation method for each trial */
     var pause = {
@@ -156,18 +303,18 @@
       type: "html-keyboard-response",
       stimulus: '',
       choices: ['1', '2', '3', '4'],
-//      trial_duration: 4000,
+      trial_duration: 4000,
       timeline_variables: [
-        { pair_type: 'be'},
-        { pair_type: 'wi'},
-        { pair_type: 'wi'},
-        { pair_type: 'irr'},
-        { pair_type: 'irr'},
-        { pair_type: 'irr'}
+        { pair_type: 'be' },
+        { pair_type: 'wi' },
+        { pair_type: 'wi' },
+        { pair_type: 'irr' },
+        { pair_type: 'irr'  },
+        { pair_type: 'irr' }
       ],
       sample: {
         type: 'without-replacement',
-        size: 6, // 6 trials, without replacement
+        size: 6,
       },
       randomize_order: true,
       on_start: function(trial) {
@@ -209,7 +356,7 @@
       on_start: function(trial) {
         var random = randomize_sunburst();
         var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(random) + '</div>';
-        var correct_response = tig_bep(random);
+        var correct_response = tig_fep(random);
         var question = '<div class="center"><p>"Is this a Tig (T) or a Fep (F)?"</p></div>';
         var stimulus = sunburst + question;
         trial.stimulus = stimulus;
@@ -238,8 +385,8 @@
 */
     /*HELPER FUNCTIONS*/
 
-    /* determines if the sunburst is a tig or a bep */
-    function tig_bep(sunburst) {
+    /* determines if the sunburst is a tig or a fep */
+    function tig_fep(sunburst) {
       if (sunburst <= 8) {var correct = 'T';}
       else {var correct = 'F';}
       return correct;
