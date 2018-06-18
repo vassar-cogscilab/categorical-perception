@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Odd Ball Task</title>
+    <title>Practice Phase</title>
     <script src="jspsych-master/jspsych.js"></script>
     <script src="jspsych-master/plugins/jspsych-html-keyboard-response.js"></script>
     <script src="jspsych-master/plugins/jspsych-image-keyboard-response.js"></script>
@@ -28,34 +28,22 @@
   <body></body>
 
   <script>
-  var stim_width_height = 200;
-  var stim_padding = 40;
-  var min_dot_density = 100;
-  var max_dot_density = 2000;
-  var min_line_density = 30;
-  var max_line_density = 550;
-  var dim_a = 0.5;
-  var dim_b = 0.5;
 
-  var oddball_iti = 100;
+    var stim_width_height = 200;
+    var stim_padding = 40;
+    var min_dot_density = 100;
+    var max_dot_density = 2000;
+    var min_line_density = 30;
+    var max_line_density = 550;
+    var dim_a = 0.5;
+    var dim_b = 0.5;
 
-  var rel_be_distance = 0.2;
-  var rel_wi_distance = 0.2;
-  var irr_distance = 0.2;
-  var three = 0;
+    var rel_be_distance = 0.25;
+    var rel_wi_distance = 0.25;
+    var irr_distance = 0.25;
+    var three = 0;
+    var practice_correct = 0;
 
-    /* adjusts the particular distance for every three correct responses */
-    function adjust_distance(distance, correct) {
-      if(correct) {three += 1;}
-      else {distance *= 1.05;}
-      if(three % 3 == 0) {distance *= 0.95;}
-      return distance;
-    }
-
-    /* determines which dimension is relevant throughout the experiment */
-    var relevant_dimension = jsPsych.randomization.sampleWithoutReplacement(['dots', 'lines'], 1) [0];
-
-    /* create timeline */
     var timeline = [];
 
     /* INSTRUCTIONS */
@@ -64,34 +52,25 @@
       type: "html-keyboard-response",
       stimulus: "Welcome to the experiment. Press any key to begin."
     };
-    timeline.push(welcome);
+    timeline.push(welcome)
 
-    var instructions = {
+    var practice_instructions = {
       type: "html-keyboard-response",
-      choices: '1',
-      stimulus: "In this first task, four sunbursts will appear in the center of the screen. <p> \
-      <p> If the <strong>first</strong> star from the left is the odd one out, press 1. </p> \
-      <p> If the <strong>second</strong> star from the left is the odd one out, press 2. </p> \
-      <p>If the <strong>third</strong> star from the left is the odd one out, press 3. </p> \
-      <p> If the <strong>fourth</strong> star from the left is the odd one out, press 4. </p> \
-      <p><div style='float: left;'><img src='jspsych-master/img/example_ob.png'></img></p> \
-      <p class='small'> ex. <strong>Press 1</strong> to continue</p></div>",
-      post_trial_gap: 250,
+      stimulus: function() {
+        if (practice_correct == 0) {return "<p>These two tasks will alternate during the experiment.How about trying out a few for practice? </p> \
+            <p>We recommend you use your <strong>left</strong> hand for the first task<strong>(1, 2, 3, 4)</strong>"
+            + "and your <strong>right</strong> hand for the second task<strong>(T, F)</strong>. <p>Press any key to continue!</p>"
+        } else {return "<p>Almost! You must get a couple trials correct in the practice phase in order to proceed</p> \
+            <p>Remember, it is best to use your <strong>left</strong> hand for the first task<strong>(1, 2, 3, 4)</strong>"
+            + "and your <strong>right</strong> hand for the second task<strong>(T, F)</strong>. </p> \
+            <p>Please try again. Press any key to continue.</p>"
+        }
+      },
+      post_trial_gap: 500,
     };
-    timeline.push(instructions);
 
-    var instructions_pt2 = {
-      type: "html-keyboard-response",
-      stimulus: "<p> On each trial you will have up to 4 seconds to enter your response. </p> \
-      <p>After that, it will move on to the next trial, so please do your best to respond within that time! </p> \
-      <p>After you respond, you will receive feedback as to whether your response was correct, </p> \
-      <p>indicated by a green box (for correct) and red box (for incorrect). </p> \
-      <p>Press any key to continue. </p>",
-      post_trial_gap: 250,
-    };
-    timeline.push(instructions_pt2);
-
-    /*HELPER FUNCTIONS*/
+    /* determines which dimension is relevant throughout the experiment */
+    var relevant_dimension = jsPsych.randomization.sampleWithoutReplacement(['dots', 'lines'], 1) [0];
 
     /* determines which sunburst will be the odd-ball */
     function randomize_correct() {
@@ -107,12 +86,10 @@
     function randomize_be_pair() {
       return jsPsych.randomization.sampleWithoutReplacement([1, 2, 3, 4], 1)[0];
     }
-
     /* randomly chooses which pair on the relevant-between dimension to present in the odd_ball task */
     function randomize_wi_pair() {
       return jsPsych.randomization.sampleWithoutReplacement([5, 6, 7, 8, 9, 10, 11, 12], 1)[0];
     }
-
     /* randomly chooses which pair on the relevant-between dimension to present in the odd_ball task */
     function randomize_irr_pair() {
       return jsPsych.randomization.sampleWithoutReplacement([13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24], 1)[0];
@@ -233,7 +210,6 @@
       return y_dim;
     }
 
-    /* using helper functions above, generates category training task trial-specific stimuli parameters*/
     function calculate_sunburst_values(sunburst) {
       var dimension = relevant_dimension;
       var xCoordinate = x_coordinate(sunburst);
@@ -249,7 +225,7 @@
       }
     }
 
-    /* using helper functions above, generates oddball task trial-specific stimuli parameters*/
+    /* using helper functions above, generates trial-specific stimuli parameters*/
     function calculate_pair_values(pair, correct, rel_be_distance, rel_wi_distance, irr_distance) {
       var bool = boolean();
       var rel_be_distance = rel_be_distance;
@@ -375,12 +351,6 @@
       return feedback;
     }
 
-    function too_slow() {
-      return jsPsych.randomization.sampleWithoutReplacement(['Snooze ya lose!', 'Oops!', 'Cmon Grandma!'], 1)[0]
-    }
-
-    /*TIMELINES*/
-
     /* universal pause method for each trial */
     var pause = {
       type: 'html-keyboard-response',
@@ -397,8 +367,7 @@
       data: {test_part: 'pause'}
     }
 
-    /* oddball task real trial */
-    var test = {
+    var ob_practice = {
       type: "html-keyboard-response",
       stimulus: '',
       choices: ['1', '2', '3', '4'],
@@ -430,25 +399,41 @@
         var stimulus = set + question;
         trial.stimulus = stimulus;
         trial.data = {
-          test_part: 'test',
+          test_part: 'ob_practice',
           correct_response: correct,
           stimulus: set,
         }
       },
       on_finish: function(data) {
         data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
-        if(jsPsych.timelineVariable('pair_type') == 'be'){
-          rel_be_distance = adjust_distance(rel_be_distance, data.correct);
-        } else if(jsPsych.timelineVariable('pair_type') == 'wi'){
-          rel_wi_distance = adjust_distance(rel_wi_distance, data.correct);
-        } else {
-          irr_distance = adjust_distance(irr_distance, data.correct);
-        }
+        if (data.correct == true) {practice_correct += 1}
       },
     }
 
-    /* feedback for oddball trials*/
-    var feedback = {
+    var ct_practice = {
+      type: "html-keyboard-response",
+      stimulus: '',
+      trial_duration: 4000,
+      choices: ['T', 'F',],
+      on_start: function(trial) {
+        var random = randomize_sunburst();
+        var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(random) + '</div>';
+        var correct_response = tig_fep(random);
+        var question = '<div class="center"><p>"Is this a Tig (T) or a Fep (F)?"</p></div>';
+        var stimulus = sunburst + question;
+        trial.stimulus = stimulus;
+        trial.data = {
+          test_part: 'ct_practice',
+          correct_response: correct_response,
+          stimulus: sunburst,
+        }
+      },
+      on_finish: function(data) {
+        data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      },
+    }
+
+    var ob_feedback = {
       type: "html-keyboard-response",
       stimulus: function() {
         var lastCorrect = last_correct();
@@ -460,12 +445,6 @@
         if(lastCorrect == true) {
           html += "</style>"
           html += "<p style='position:absolute; width: 100%; left: 0;'>Correct!</p>"
-        } else if (jsPsych.data.get().last(1).values()[0].key_press == null) {
-            html += ".ex"+actualResponse+" { border: 11px solid red; padding: 0;} ";
-            html += "</style>"
-            html += jsPsych.data.get().last(1).values()[0].stimulus +
-              "<p style='position:absolute; width: 100%; left: 0;'>" + too_slow();
-            return html;
         } else {
           html += ".ex"+actualResponse+" { border: 11px solid red; padding: 0;} ";
           html += "</style>"
@@ -474,23 +453,65 @@
         stimulus += html;
         return stimulus;
       },
-      choices: function () {
-        if (jsPsych.data.get().last(1).values()[0].key_press != null) {return jsPsych.NO_KEYS}
-      },
-      trial_duration: function () {
-        if (jsPsych.data.get().last(1).values()[0].key_press != null) {return 500}
-      },
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 500
     }
 
-    var test_procedure = {
-      timeline: [pause, test, feedback],
-      //timeline_variables: test_stimuli,
-      repetitions: 20,
-      randomize_order: true
+    var ct_feedback = {
+      type: "html-keyboard-response",
+      stimulus: function () {
+        var lastCorrect = last_correct();
+        var html = "<style>"
+        if (lastCorrect == true) {
+          html += ".oddball-stim { border: 11px solid limegreen; padding: 0;} ";
+          html += "</style>"
+          html +=
+            jsPsych.data.get().last(1).values()[0].stimulus +
+            "<p style='position:absolute; width: 100%; left: 0;'>Correct, this is a " +
+            category_feedback() + "!</p>"
+          return html;
+        } else {
+          html += ".oddball-stim { border: 11px solid red; padding: 0;} ";
+          html += "</style>"
+          html +=
+            jsPsych.data.get().last(1).values()[0].stimulus +
+            "<p style='position:absolute; width: 100%; left: 0;'>Incorrect, this is a " +
+            category_feedback() + "!</p>"
+          return html;
+        }
+      },
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 500,
     }
-    timeline.push(test_procedure);
 
-    /* define debrief */
+    var oddball_practice = {
+      timeline: [ob_practice, ob_feedback],
+    }
+
+    var category_practice = {
+      timeline: [ct_practice, ct_feedback],
+    }
+
+    var practice_phase = {
+      timeline: [practice_instructions, oddball_practice, pause, category_practice, pause, oddball_practice, pause, category_practice],
+      loop_function: function () {
+        if (practice_correct < 2) {return true}
+        else {return false}
+      },
+    }
+    timeline.push(practice_phase)
+
+    var last_remarks = {
+      type: "html-keyboard-response",
+      stimulus: "<p>Hooray! You’ve completed the practice phase! </p> \
+          <p>During the experiment, a bar will appear at the bottom of the screen </p> \
+          <p>that will get longer when you succeed as the tasks get more difficult. </p> \
+          <p>(Try to get it to be as long as you can!) </p> \
+          <p>Okay, you’re finally ready to start the experiment! Press any key to begin! </p>",
+    };
+    timeline.push(last_remarks)
+
+    /* post-experiment debrief */
     var debrief_block = {
       type: "html-keyboard-response",
       stimulus: function() {
@@ -504,15 +525,10 @@
         "<p>Press any key to complete the experiment. Thank you!</p>";
       }
     };
-    timeline.push(debrief_block);
+    timeline.push(debrief_block)
 
     /* start the experiment */
-    jsPsych.init({
-      timeline: timeline,
-      on_finish: function() {
-        console.log(jsPsych.data.get().ignore('stimulus').json());
-      }
-    });
+    jsPsych.init({timeline: timeline})
 
   </script>
 </html>
