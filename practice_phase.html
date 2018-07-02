@@ -29,141 +29,50 @@
 
   <script>
 
+  //CONSTANTS
     var stim_width_height = 200;
     var stim_padding = 40;
     var min_dot_density = 100;
     var max_dot_density = 2000;
     var min_line_density = 30;
     var max_line_density = 550;
-    var dim_a = 0.5;
-    var dim_b = 0.5;
 
-    var rel_be_distance = 0.25;
-    var rel_wi_distance = 0.25;
-    var irr_distance = 0.25;
-    var three = 0;
-    var practice_correct = 0;
+  //PARTICIPANT
+    // determines if participant is in the experimental or control group
+    var group = jsPsych.randomization.sampleWithoutReplacement(['experimental', 'control'], 1) [0];
 
-    var timeline = [];
-
-    /* INSTRUCTIONS */
-
-    var welcome = {
-      type: "html-keyboard-response",
-      stimulus: "Welcome to the experiment. Press any key to begin."
-    };
-    timeline.push(welcome)
-
-    var practice_instructions = {
-      type: "html-keyboard-response",
-      stimulus: function() {
-        if (practice_correct == 0) {return "<p>These two tasks will alternate during the experiment.How about trying out a few for practice? </p> \
-            <p>We recommend you use your <strong>left</strong> hand for the first task<strong>(1, 2, 3, 4)</strong>"
-            + "and your <strong>right</strong> hand for the second task<strong>(T, F)</strong>. <p>Press any key to continue!</p>"
-        } else {return "<p>Almost! You must get a couple trials correct in the practice phase in order to proceed</p> \
-            <p>Remember, it is best to use your <strong>left</strong> hand for the first task<strong>(1, 2, 3, 4)</strong>"
-            + "and your <strong>right</strong> hand for the second task<strong>(T, F)</strong>. </p> \
-            <p>Please try again. Press any key to continue.</p>"
-        }
-      },
-      post_trial_gap: 500,
-    };
-
-    /* determines which dimension is relevant throughout the experiment */
+    // determines which dimension is relevant throughout the experiment
     var relevant_dimension = jsPsych.randomization.sampleWithoutReplacement(['dots', 'lines'], 1) [0];
 
-    /* determines which sunburst will be the odd-ball */
+  //RANDOMIZERS
+    // randomly determines which sunburst will be the correct answer in an odd-ball trial
     function randomize_correct() {
       return jsPsych.randomization.sampleWithoutReplacement(['1', '2', '3', '4'], 1)[0];
     }
-
-    /* randomly samples a particular sunburst from the scene */
+    // randomly samples a particular sunburst from the scene
     function randomize_sunburst() {
       return jsPsych.randomization.sampleWithoutReplacement([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 1)[0];
     }
-
-    /* randomly chooses which pair on the relevant-between dimension to present in the odd_ball task */
+    // randomly chooses a relevant-between pair to present in the odd_ball task
     function randomize_be_pair() {
       return jsPsych.randomization.sampleWithoutReplacement([1, 2, 3, 4], 1)[0];
     }
-    /* randomly chooses which pair on the relevant-between dimension to present in the odd_ball task */
+    // randomly chooses a relevant-within pair to present in the odd_ball task
     function randomize_wi_pair() {
       return jsPsych.randomization.sampleWithoutReplacement([5, 6, 7, 8, 9, 10, 11, 12], 1)[0];
     }
-    /* randomly chooses which pair on the relevant-between dimension to present in the odd_ball task */
+    // randomly chooses a irrelevant pair to present in the odd_ball task
     function randomize_irr_pair() {
       return jsPsych.randomization.sampleWithoutReplacement([13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24], 1)[0];
     }
-
-    /* randomly generates true or false */
+    // randomly generates true or false
     function boolean() {
       var boolean = jsPsych.randomization.sampleWithoutReplacement([true, false], 1)[0];
       return boolean;
     }
 
-    /* determines if the sunburst is a tig or a fep */
-    function tig_fep(sunburst) {
-      if (sunburst <= 8) {var correct = 'T';}
-      else {var correct = 'F';}
-      return correct;
-    }
-
-    function small_sunburst(pair) {
-      if (pair == 1) {sunburst = 8;}
-      else if (pair == 2) {sunburst = 7;}
-      else if (pair == 3) {sunburst = 6;}
-      else if (pair == 4) {sunburst = 5;}
-      else if (pair == 5) {sunburst = 4;}
-      else if (pair == 6) {sunburst = 3;}
-      else if (pair == 7) {sunburst = 2;}
-      else if (pair == 8) {sunburst = 1;}
-      else if (pair == 9) {sunburst = 12;}
-      else if (pair == 10) {sunburst = 11;}
-      else if (pair == 11) {sunburst = 10;}
-      else if (pair == 12) {sunburst = 9;}
-      else if (pair == 13) {sunburst = 3;}
-      else if (pair == 14) {sunburst = 2;}
-      else if (pair == 15) {sunburst = 1;}
-      else if (pair == 16) {sunburst = 7;}
-      else if (pair == 17) {sunburst = 6;}
-      else if (pair == 18) {sunburst = 5;}
-      else if (pair == 19) {sunburst = 11;}
-      else if (pair == 20) {sunburst = 10;}
-      else if (pair == 21) {sunburst = 9;}
-      else if (pair == 22) {sunburst = 15;}
-      else if (pair == 23) {sunburst = 14;}
-      else {sunburst = 13;}
-      return sunburst;
-    }
-
-    function big_sunburst(pair) {
-      if (pair == '1') {sunburst = 12;}
-      else if (pair == '2') {sunburst = 11;}
-      else if (pair == '3') {sunburst = 10;}
-      else if (pair == '4') {sunburst = 9;}
-      else if (pair == '5') {sunburst = 8;}
-      else if (pair == '6') {sunburst = 7;}
-      else if (pair == '7') {sunburst = 6;}
-      else if (pair == '8') {sunburst = 5;}
-      else if (pair == '9') {sunburst = 16;}
-      else if (pair == '10') {sunburst = 15;}
-      else if (pair == '11') {sunburst = 14;}
-      else if (pair == '12') {sunburst = 13;}
-      else if (pair == '13') {sunburst = 4;}
-      else if (pair == '14') {sunburst = 3;}
-      else if (pair == '15') {sunburst = 2;}
-      else if (pair == '16') {sunburst = 8;}
-      else if (pair == '17') {sunburst = 7;}
-      else if (pair == '18') {sunburst = 6;}
-      else if (pair == '19') {sunburst = 12;}
-      else if (pair == '20') {sunburst = 11;}
-      else if (pair == '21') {sunburst = 10;}
-      else if (pair == '22') {sunburst = 16;}
-      else if (pair == '23') {sunburst = 15;}
-      else {sunburst = 14;}
-      return sunburst;
-    }
-
+  //HELPERS
+    // determines x coordinate for given sunburst
     function x_coordinate(sunburst) {
       var x_dim;
       if (sunburst <= 4) {x_dim = 0;}
@@ -173,6 +82,7 @@
       return x_dim;
     }
 
+    // determines y coordinate for a given sunburst
     function y_coordinate(sunburst) {
       var y_dim;
       if (sunburst % 4 == 1) {y_dim = 0;}
@@ -182,6 +92,7 @@
       return y_dim;
     }
 
+    // determines relevant dimension values for a given coordinate
     function rel_dim_val(x, be, wi){
       var x_dim;
       if(x == 0){
@@ -196,6 +107,7 @@
       return x_dim;
     }
 
+    // determines irrelevant dimension values for a given coordinate
     function irr_dim_val(y, irr) {
       var y_dim;
       if(y == 0){
@@ -225,43 +137,7 @@
       }
     }
 
-    /* using helper functions above, generates trial-specific stimuli parameters*/
-    function calculate_pair_values(pair, correct, rel_be_distance, rel_wi_distance, irr_distance) {
-      var bool = boolean();
-      var rel_be_distance = rel_be_distance;
-      var rel_wi_distance = rel_wi_distance;
-      var irr_distance = irr_distance;
-      if (bool) {
-        var same_ball = small_sunburst(pair);
-        var sx_coord = x_coordinate(same_ball);
-        var sy_coord = y_coordinate(same_ball);
-        var odd_ball = big_sunburst(pair);
-        var ox_coord = x_coordinate(odd_ball);
-        var oy_coord = y_coordinate(odd_ball);
-      } else {
-        var odd_ball = small_sunburst(pair);
-        var ox_coord = x_coordinate(odd_ball);
-        var oy_coord = y_coordinate(odd_ball);
-        var same_ball = big_sunburst(pair);
-        var sx_coord = x_coordinate(same_ball);
-        var sy_coord = y_coordinate(same_ball);
-      }
-      if (relevant_dimension == 'dots') {
-        var ox_dim = rel_dim_val(ox_coord, rel_be_distance, rel_wi_distance);
-        var oy_dim = irr_dim_val(oy_coord, irr_distance);
-        var sx_dim = rel_dim_val(sx_coord, rel_be_distance, rel_wi_distance);
-        var sy_dim = irr_dim_val(sy_coord, irr_distance);
-      } else {
-        var ox_dim = irr_dim_val(ox_coord, irr_distance);
-        var oy_dim = rel_dim_val(oy_coord, rel_be_distance, rel_wi_distance);
-        var sx_dim = irr_dim_val(sx_coord, irr_distance);
-        var sy_dim = rel_dim_val(sy_coord, rel_be_distance, rel_wi_distance);
-      }
-      var set = generate_set(sx_dim, sy_dim, ox_dim, oy_dim, correct)
-      return set;
-    }
-
-    /* depicts the set of stimuli in the scene */
+    // depicts the set of stimuli in the scene
     function generate_set(same_dot, same_line, odd_dot, odd_line, correct) {
       var html = '<div style="position: relative; width:'+((stim_width_height+stim_padding)*4 + stim_padding)+'px; height:'+(stim_width_height+stim_padding)+'px;">';
       if (correct == '1'){
@@ -289,7 +165,7 @@
       return html;
     }
 
-    /* draws each sunburst individually */
+    // displays individual sunburst
     function generate_stim(dot_dim, line_dim) {
         // params
         var w = stim_width_height;
@@ -339,7 +215,7 @@
         return str;
       }
 
-    /* determines if the last answer was correct */
+    // determines if the last response was correct
     function last_correct() {
       return jsPsych.data.get().last(1).values()[0].correct;
     }
@@ -351,7 +227,34 @@
       return feedback;
     }
 
-    /* universal pause method for each trial */
+    function too_slow() {
+      return jsPsych.randomization.sampleWithoutReplacement(['Snooze ya lose!', 'Oops!', 'Cmon Grandma!'], 1)[0]
+    }
+
+    var timeline = [];
+
+    var welcome = {
+      type: "html-keyboard-response",
+      stimulus: "Welcome to the experiment. Press any key to begin."
+    };
+    timeline.push(welcome)
+
+    var practice_instructions = {
+      type: "html-keyboard-response",
+      stimulus: function() {
+        if (practice_correct == 0) {return "<p>These two tasks will alternate during the experiment. How about trying out a few for practice? </p> \
+            <p>We recommend you use your <strong>left</strong> hand for the first task<strong>(1, 2, 3, 4)</strong>"
+            + "and your <strong>right</strong> hand for the second task<strong>(T, F)</strong>. <p>Press any key to continue!</p>"
+        } else {return "<p>Almost! You must get a couple trials correct in the practice phase in order to proceed</p> \
+            <p>Remember, it is best to use your <strong>left</strong> hand for the first task<strong>(1, 2, 3, 4)</strong>"
+            + "and your <strong>right</strong> hand for the second task<strong>(T, F)</strong>. </p> \
+            <p>Please try again. Press any key to continue.</p>"
+        }
+      },
+      post_trial_gap: 500,
+    };
+
+    // universal pause for every trial
     var pause = {
       type: 'html-keyboard-response',
       stimulus: function () {
@@ -367,72 +270,127 @@
       data: {test_part: 'pause'}
     }
 
-    var ob_practice = {
+    var ob_rel = {
       type: "html-keyboard-response",
       stimulus: '',
       choices: ['1', '2', '3', '4'],
-      trial_duration: 4000,
-      timeline_variables: [
-        { pair_type: 'be' },
-        { pair_type: 'wi' },
-        { pair_type: 'wi' },
-        { pair_type: 'irr' },
-        { pair_type: 'irr'  },
-        { pair_type: 'irr' }
-      ],
-      sample: {
-        type: 'without-replacement',
-        size: 6,
-      },
-      randomize_order: true,
+      //trial_duration: 4000,
       on_start: function(trial) {
         var correct = randomize_correct();
-        if (jsPsych.timelineVariable('pair_type') == 'be') {
-          var pair = randomize_be_pair();
-        } else if (jsPsych.timelineVariable('pair_type') == 'wi') {
-          var pair = randomize_wi_pair();
-        } else {
-          var pair = randomize_irr_pair();
-        }
         var question = '<div class="center"><p>Choose the odd-ball</p></div>';
-        var set = calculate_pair_values(pair, correct, rel_be_distance, rel_wi_distance, irr_distance);
+        if (relevant_dimension=='dots') {
+          if (boolean()) {var set = generate_set(0.2,0.2,0.8,0.2,correct)}
+          else {var set = generate_set(0.8,0.8,0.2,0.8,correct)}
+        } else /* relevant_dimension == 'lines' */ {
+          if (boolean()) {var set = generate_set(0.2,0.2,0.2,0.8,correct)}
+          else {var set = generate_set(0.8,0.8,0.8,0.2,correct)}
+        }
         var stimulus = set + question;
         trial.stimulus = stimulus;
-        trial.data = {
-          test_part: 'ob_practice',
-          correct_response: correct,
-          stimulus: set,
-        }
+        trial.data = {test_part: 'ob_rel', correct_response: correct, stimulus: set}
       },
       on_finish: function(data) {
         data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
-        if (data.correct == true) {practice_correct += 1}
       },
     }
 
-    var ct_practice = {
+    var ob_irr = {
       type: "html-keyboard-response",
       stimulus: '',
-      trial_duration: 4000,
+      choices: ['1', '2', '3', '4'],
+      //trial_duration: 4000,
+      on_start: function(trial) {
+        var correct = randomize_correct();
+        var question = '<div class="center"><p>Choose the odd-ball</p></div>';
+        if (relevant_dimension=='lines') {
+          if (boolean()) {var set = generate_set(0.2,0.2,0.8,0.2,correct)}
+          else {var set = generate_set(0.8,0.8,0.2,0.8,correct)}
+        } else /* relevant_dimension == 'dots' */ {
+          if (boolean()) {var set = generate_set(0.2,0.2,0.2,0.8,correct)}
+          else {var set = generate_set(0.8,0.8,0.8,0.2,correct)}
+        }
+        var stimulus = set + question;
+        trial.stimulus = stimulus;
+        trial.data = {test_part: 'ob_rel', correct_response: correct, stimulus: set}
+      },
+      on_finish: function(data) {
+        data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      },
+    }
+
+    var ct_tig = {
+      type: "html-keyboard-response",
+      stimulus: '',
+      //trial_duration: 4000,
       choices: ['T', 'F',],
       on_start: function(trial) {
-        var random = randomize_sunburst();
-        var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(random) + '</div>';
-        var correct_response = tig_fep(random);
+        var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(2) + '</div>';
+        var correct = 'T';
         var question = '<div class="center"><p>"Is this a Tig (T) or a Fep (F)?"</p></div>';
         var stimulus = sunburst + question;
         trial.stimulus = stimulus;
-        trial.data = {
-          test_part: 'ct_practice',
-          correct_response: correct_response,
-          stimulus: sunburst,
-        }
+        trial.data = {test_part: 'ct_tig', correct_response: correct, stimulus: sunburst}
       },
       on_finish: function(data) {
         data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
       },
     }
 
+    var ct_fep = {
+      type: "html-keyboard-response",
+      stimulus: '',
+      //trial_duration: 4000,
+      choices: ['T', 'F',],
+      on_start: function(trial) {
+        var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(14) + '</div>';
+        var correct = 'F';
+        var question = '<div class="center"><p>"Is this a Tig (T) or a Fep (F)?"</p></div>';
+        var stimulus = sunburst + question;
+        trial.stimulus = stimulus;
+        trial.data = {test_part: 'ct_tig', correct_response: correct, stimulus: sunburst}
+      },
+      on_finish: function(data) {
+        data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      },
+    }
+
+    var nj_dots = {
+      type: "html-keyboard-response",
+      stimulus: '',
+      //trial_duration: 4000,
+      choices: ['M', 'L',],
+      on_start: function(trial) {
+        var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(1) + '</div>';
+        var correct = 'L';
+        var question = '<div class="center"><p>"2000 dots?"</p></div>';
+        var stimulus = sunburst + question;
+        trial.stimulus = stimulus;
+        trial.data = {test_part: 'nj_dots', correct_response: correct, stimulus: sunburst}
+      },
+      on_finish: function(data) {
+        data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      },
+    }
+
+    var nj_lines = {
+      type: "html-keyboard-response",
+      stimulus: '',
+      //trial_duration: 4000,
+      choices: ['M', 'L'],
+      on_start: function(trial) {
+        var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(16) + '</div>';
+        var correct = 'M';
+        var question = '<div class="center"><p>"50 lines?"</p></div>';
+        var stimulus = sunburst + question;
+        trial.stimulus = stimulus;
+        trial.data = {test_part: 'nj_lines', correct_response: correct, stimulus: sunburst}
+      },
+      on_finish: function(data) {
+        data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+      },
+    }
+
+    // feedback for oddball trials
     var ob_feedback = {
       type: "html-keyboard-response",
       stimulus: function() {
@@ -445,6 +403,12 @@
         if(lastCorrect == true) {
           html += "</style>"
           html += "<p style='position:absolute; width: 100%; left: 0;'>Correct!</p>"
+        } else if (jsPsych.data.get().last(1).values()[0].key_press == null) {
+            html += ".ex"+actualResponse+" { border: 11px solid red; padding: 0;} ";
+            html += "</style>"
+            html += jsPsych.data.get().last(1).values()[0].stimulus +
+              "<p style='position:absolute; width: 100%; left: 0;'>" + too_slow();
+            return html;
         } else {
           html += ".ex"+actualResponse+" { border: 11px solid red; padding: 0;} ";
           html += "</style>"
@@ -453,10 +417,15 @@
         stimulus += html;
         return stimulus;
       },
-      choices: jsPsych.NO_KEYS,
-      trial_duration: 500
+      choices: function () {
+        if (jsPsych.data.get().last(1).values()[0].key_press != null) {return jsPsych.NO_KEYS}
+      },
+      trial_duration: function () {
+        if (jsPsych.data.get().last(1).values()[0].key_press != null) {return 500}
+      },
     }
 
+    // feedback for category training trials
     var ct_feedback = {
       type: "html-keyboard-response",
       stimulus: function () {
@@ -465,41 +434,82 @@
         if (lastCorrect == true) {
           html += ".oddball-stim { border: 11px solid limegreen; padding: 0;} ";
           html += "</style>"
-          html +=
-            jsPsych.data.get().last(1).values()[0].stimulus +
+          html += jsPsych.data.get().last(1).values()[0].stimulus +
             "<p style='position:absolute; width: 100%; left: 0;'>Correct, this is a " +
             category_feedback() + "!</p>"
           return html;
-        } else {
+        } else if (jsPsych.data.get().last(1).values()[0].key_press == null) {
           html += ".oddball-stim { border: 11px solid red; padding: 0;} ";
           html += "</style>"
-          html +=
-            jsPsych.data.get().last(1).values()[0].stimulus +
+          html += jsPsych.data.get().last(1).values()[0].stimulus +
+            "<p style='position:absolute; width: 100%; left: 0;'>" + too_slow() + " This is a " +
+            category_feedback();
+          return html;
+        }
+        else {
+          html += ".oddball-stim { border: 11px solid red; padding: 0;} ";
+          html += "</style>"
+          html += jsPsych.data.get().last(1).values()[0].stimulus +
             "<p style='position:absolute; width: 100%; left: 0;'>Incorrect, this is a " +
             category_feedback() + "!</p>"
           return html;
         }
       },
-      choices: jsPsych.NO_KEYS,
-      trial_duration: 500,
-    }
-
-    var oddball_practice = {
-      timeline: [ob_practice, ob_feedback],
-    }
-
-    var category_practice = {
-      timeline: [ct_practice, ct_feedback],
-    }
-
-    var practice_phase = {
-      timeline: [practice_instructions, oddball_practice, pause, category_practice, pause, oddball_practice, pause, category_practice],
-      loop_function: function () {
-        if (practice_correct < 2) {return true}
-        else {return false}
+      choices: function () {
+        if (jsPsych.data.get().last(1).values()[0].key_press != null) {return jsPsych.NO_KEYS}
+      },
+      trial_duration: function () {
+        if (jsPsych.data.get().last(1).values()[0].key_press != null) {return 500}
       },
     }
-    timeline.push(practice_phase)
+
+    // feedback for number judgement trials
+    var nj_feedback = {
+      type: "html-keyboard-response",
+      stimulus: function () {
+        var lastCorrect = last_correct();
+        var html = "<style>"
+        if (lastCorrect == true) {
+          html += ".oddball-stim { border: 11px solid limegreen; padding: 0;} ";
+          html += "</style>"
+          html += jsPsych.data.get().last(1).values()[0].stimulus +
+            "<p style='position:absolute; width: 100%; left: 0;'>Correct!</p>"
+          return html;
+        } else if (jsPsych.data.get().last(1).values()[0].key_press == null) {
+          html += ".oddball-stim { border: 11px solid red; padding: 0;} ";
+          html += "</style>"
+          html += jsPsych.data.get().last(1).values()[0].stimulus +
+            "<p style='position:absolute; width: 100%; left: 0;'>" + too_slow();
+          return html;
+        }
+        else {
+          html += ".oddball-stim { border: 11px solid red; padding: 0;} ";
+          html += "</style>"
+          html += jsPsych.data.get().last(1).values()[0].stimulus +
+            "<p style='position:absolute; width: 100%; left: 0;'>Incorrect!</p>"
+          return html;
+        }
+      },
+      choices: function () {
+        if (jsPsych.data.get().last(1).values()[0].key_press != null) {return jsPsych.NO_KEYS}
+      },
+      trial_duration: function () {
+        if (jsPsych.data.get().last(1).values()[0].key_press != null) {return 500}
+        else {return 1000}
+      },
+    }
+
+    var experimental_practice_phase = {
+      timeline: [practice_instructions, pause, ob_rel, ob_feedback, pause, ct_tig, ct_feedback,
+        pause, ob_irr, ob_feedback, pause, ct_fep, ct_feedback],
+    }
+    if (group=='experimental') {timeline.push(experimental_practice_phase)}
+
+    var control_practice_phase = {
+      timeline: [practice_instructions, pause, ob_rel, ob_feedback, pause, nj_dots, nj_feedback,
+        pause, ob_irr, ob_feedback, pause, nj_lines, nj_feedback],
+    }
+    if (group=='control') {timeline.push(control_practice_phase)}
 
     var last_remarks = {
       type: "html-keyboard-response",
@@ -511,7 +521,7 @@
     };
     timeline.push(last_remarks)
 
-    /* post-experiment debrief */
+    // post-experiment debrief
     var debrief_block = {
       type: "html-keyboard-response",
       stimulus: function() {
@@ -527,7 +537,7 @@
     };
     timeline.push(debrief_block)
 
-    /* start the experiment */
+    // start the experiment
     jsPsych.init({timeline: timeline})
 
   </script>

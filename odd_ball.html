@@ -28,23 +28,21 @@
   <body></body>
 
   <script>
-  var stim_width_height = 200;
-  var stim_padding = 40;
-  var min_dot_density = 100;
-  var max_dot_density = 2000;
-  var min_line_density = 30;
-  var max_line_density = 550;
-  var dim_a = 0.5;
-  var dim_b = 0.5;
 
-  var oddball_iti = 100;
+  //CONSTANTS
+    var stim_width_height = 200;
+    var stim_padding = 40;
+    var min_dot_density = 100;
+    var max_dot_density = 2000;
+    var min_line_density = 30;
+    var max_line_density = 550;
 
-  var rel_be_distance = 0.2;
-  var rel_wi_distance = 0.2;
-  var irr_distance = 0.2;
-  var three = 0;
-
-    /* adjusts the particular distance for every three correct responses */
+  //STAIRCASE
+    var rel_be_distance = 0.2;
+    var rel_wi_distance = 0.2;
+    var irr_distance = 0.2;
+    var three = 0;
+    // adjusts the particular distance for every three correct responses
     function adjust_distance(distance, correct) {
       if(correct) {three += 1;}
       else {distance *= 1.05;}
@@ -52,19 +50,19 @@
       return distance;
     }
 
-    /* determines which dimension is relevant throughout the experiment */
+  //PARTICIPANT
+    // determines which dimension is relevant throughout the experiment
     var relevant_dimension = jsPsych.randomization.sampleWithoutReplacement(['dots', 'lines'], 1) [0];
 
-    /* create timeline */
+    // create timeline
     var timeline = [];
 
-    /* INSTRUCTIONS */
-
+  //INSTRUCTIONS
     var welcome = {
       type: "html-keyboard-response",
       stimulus: "Welcome to the experiment. Press any key to begin."
     };
-    timeline.push(welcome);
+    timeline.push(welcome)
 
     var instructions = {
       type: "html-keyboard-response",
@@ -78,7 +76,7 @@
       <p class='small'> ex. <strong>Press 1</strong> to continue</p></div>",
       post_trial_gap: 250,
     };
-    timeline.push(instructions);
+    timeline.push(instructions)
 
     var instructions_pt2 = {
       type: "html-keyboard-response",
@@ -89,16 +87,15 @@
       <p>Press any key to continue. </p>",
       post_trial_gap: 250,
     };
-    timeline.push(instructions_pt2);
+    timeline.push(instructions_pt2)
 
-    /*HELPER FUNCTIONS*/
-
-    /* determines which sunburst will be the odd-ball */
+  //RANDOMIZERS
+    // determines which sunburst will be the odd-ball
     function randomize_correct() {
       return jsPsych.randomization.sampleWithoutReplacement(['1', '2', '3', '4'], 1)[0];
     }
 
-    /* randomly samples a particular sunburst from the scene */
+    // randomly samples a particular sunburst from the scene
     function randomize_sunburst() {
       return jsPsych.randomization.sampleWithoutReplacement([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 1)[0];
     }
@@ -124,7 +121,8 @@
       return boolean;
     }
 
-    /* determines if the sunburst is a tig or a fep */
+  //HELPERS
+    // determines if the sunburst is a tig or a fep
     function tig_fep(sunburst) {
       if (sunburst <= 8) {var correct = 'T';}
       else {var correct = 'F';}
@@ -233,7 +231,6 @@
       return y_dim;
     }
 
-    /* using helper functions above, generates category training task trial-specific stimuli parameters*/
     function calculate_sunburst_values(sunburst) {
       var dimension = relevant_dimension;
       var xCoordinate = x_coordinate(sunburst);
@@ -249,7 +246,6 @@
       }
     }
 
-    /* using helper functions above, generates oddball task trial-specific stimuli parameters*/
     function calculate_pair_values(pair, correct, rel_be_distance, rel_wi_distance, irr_distance) {
       var bool = boolean();
       var rel_be_distance = rel_be_distance;
@@ -285,7 +281,7 @@
       return set;
     }
 
-    /* depicts the set of stimuli in the scene */
+    // depicts the set of stimuli in the scene
     function generate_set(same_dot, same_line, odd_dot, odd_line, correct) {
       var html = '<div style="position: relative; width:'+((stim_width_height+stim_padding)*4 + stim_padding)+'px; height:'+(stim_width_height+stim_padding)+'px;">';
       if (correct == '1'){
@@ -313,7 +309,7 @@
       return html;
     }
 
-    /* draws each sunburst individually */
+    // displays individual sunburst
     function generate_stim(dot_dim, line_dim) {
         // params
         var w = stim_width_height;
@@ -363,7 +359,7 @@
         return str;
       }
 
-    /* determines if the last answer was correct */
+    // determines if the last answer was correct
     function last_correct() {
       return jsPsych.data.get().last(1).values()[0].correct;
     }
@@ -379,14 +375,18 @@
       return jsPsych.randomization.sampleWithoutReplacement(['Snooze ya lose!', 'Oops!', 'Cmon Grandma!'], 1)[0]
     }
 
-    /*TIMELINES*/
-
-    /* universal pause method for each trial */
+  //TIMELINES
+    // universal pause for each trial
     var pause = {
       type: 'html-keyboard-response',
       stimulus: function () {
         if (jsPsych.data.get().last(2).values()[0].key_press != null) {return ''}
         else {return "<p>Still with us? Press any key to continue. </p>"}
+      },
+      on_start: function () {
+        if (jsPsych.data.get().last(2).values()[0].correct_response == true) {
+          document.querySelector("progress").innerHTML += progress_bar();
+        }
       },
       choices: function () {
         if (jsPsych.data.get().last(2).values()[0].key_press != null) {return jsPsych.NO_KEYS}
@@ -397,7 +397,7 @@
       data: {test_part: 'pause'}
     }
 
-    /* oddball task real trial */
+    // oddball task trial
     var test = {
       type: "html-keyboard-response",
       stimulus: '',
@@ -447,7 +447,7 @@
       },
     }
 
-    /* feedback for oddball trials*/
+    // feedback for oddball trials
     var feedback = {
       type: "html-keyboard-response",
       stimulus: function() {
@@ -488,9 +488,9 @@
       repetitions: 20,
       randomize_order: true
     }
-    timeline.push(test_procedure);
+    timeline.push(test_procedure)
 
-    /* define debrief */
+    // define debrief
     var debrief_block = {
       type: "html-keyboard-response",
       stimulus: function() {
@@ -504,9 +504,9 @@
         "<p>Press any key to complete the experiment. Thank you!</p>";
       }
     };
-    timeline.push(debrief_block);
+    timeline.push(debrief_block)
 
-    /* start the experiment */
+    // start the experiment
     jsPsych.init({
       timeline: timeline,
       on_finish: function() {

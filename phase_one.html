@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Categorical Perception Experiment</title>
+    <script src="jspsych-master/jspsych.js"></script>
+    <script src="jspsych-master/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych-master/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-master/plugins/jspsych-image-keyboard-response.js"></script>
+    <link rel="stylesheet" href="jspsych-master/css/jspsych.css"></link>
+    <style>
+
+    div.center {
+      position: absolute;
+      width:100vw;
+      left: 0;
+    }
+
+    .oddball-stim {
+      display: inline-block;
+      padding: 10px;
+      box-shadow: 0 4px 2px 0 rgba(0,0,0,0.5);
+      border: 1px solid #ccc;
+      margin: 0px 10px;
+      background-color: white;
+    }
+
+    html, body { width: 100%; height: 100%; margin: 0;}
+    #target { background-color: white; height: calc(100% - 50px);, width: 100%; margin: 0;}
+    #progress { background-color: white; height: 50px; width 100vw; text-align:center;}
+
+    #bar-container { width: 600px; height: 40px; background-color: white; border-color: black; border-width: 5px; border-radius: 5px; }
+    #bar-fill { width: 0%; height: 40px; background-color: yellow; border-radius: 5px;}
+    </style>
+  </head>
+  <body>
+
+    <div id = "target"></div>
+    <div id = "progress">
+      <div id="bar-container">
+        <div id="bar-fill"></div>
+      </div>
+    </div>
+
+  </body>
+
+  <script>
+
+    var stim_width_height = 200;
+    var stim_padding = 40;
+    var min_dot_density = 100;
+    var max_dot_density = 2000;
+    var min_line_density = 30;
+    var max_line_density = 550;
+    var dim_a = 0.5;
+    var dim_b = 0.5;
+
+    var dot_distance = 0.8
+    var line_distance = 0.8
+    var rel_be_distance = 0.25;
+    var rel_wi_distance = 0.25;
+    var irr_distance = 0.25;
+    var three = 0;
+
+    /* adjusts the particular distance for every three correct responses */
+    function adjust_DLdistance(distance, correct) {
+      if(correct) {distance *= 0.90}
+      else {distance *= 1.10}
+      return distance;
+    }
+
+    /* determines if participant is in the experimental or control group */
+    var group = jsPsych.randomization.sampleWithoutReplacement(['experimental', 'control'], 1) [0];
+
+    /* determines which dimension is relevant throughout the experiment */
+    var relevant_dimension = jsPsych.randomization.sampleWithoutReplacement(['dots', 'lines'], 1) [0];
+
+    /* determines which sunburst will be the odd-ball */
+    function randomize_correct() {
+      return jsPsych.randomization.sampleWithoutReplacement(['1', '2', '3', '4'], 1)[0];
+    }
+
+    /* randomly generates true or false */
+    function boolean() {
+      var boolean = jsPsych.randomization.sampleWithoutReplacement([true, false], 1)[0];
+      return boolean;
+    }
+
+    /* determines which sunburst will be less dense in a particular pair */
+    function small_sunburst(pair) {
+      if (pair == 1) {sunburst = 8;}
+      else if (pair == 2) {sunburst = 7;}
+      else if (pair == 3) {sunburst = 6;}
+      else if (pair == 4) {sunburst = 5;}
+      else if (pair == 5) {sunburst = 4;}
+      else if (pair == 6) {sunburst = 3;}
+      else if (pair == 7) {sunburst = 2;}
+      else if (pair == 8) {sunburst = 1;}
+      else if (pair == 9) {sunburst = 12;}
+      else if (pair == 10) {sunburst = 11;}
+      else if (pair == 11) {sunburst = 10;}
+      else if (pair == 12) {sunburst = 9;}
+      else if (pair == 13) {sunburst = 3;}
+      else if (pair == 14) {sunburst = 2;}
+      else if (pair == 15) {sunburst = 1;}
+      else if (pair == 16) {sunburst = 7;}
+      else if (pair == 17) {sunburst = 6;}
+      else if (pair == 18) {sunburst = 5;}
+      else if (pair == 19) {sunburst = 11;}
+      else if (pair == 20) {sunburst = 10;}
+      else if (pair == 21) {sunburst = 9;}
+      else if (pair == 22) {sunburst = 15;}
+      else if (pair == 23) {sunburst = 14;}
+      else {sunburst = 13;}
+      return sunburst;
+    }
+
+    /* determines which sunburst will be more dense in a particular pair */
+    function big_sunburst(pair) {
+      if (pair == '1') {sunburst = 12;}
+      else if (pair == '2') {sunburst = 11;}
+      else if (pair == '3') {sunburst = 10;}
+      else if (pair == '4') {sunburst = 9;}
+      else if (pair == '5') {sunburst = 8;}
+      else if (pair == '6') {sunburst = 7;}
+      else if (pair == '7') {sunburst = 6;}
+      else if (pair == '8') {sunburst = 5;}
+      else if (pair == '9') {sunburst = 16;}
+      else if (pair == '10') {sunburst = 15;}
+      else if (pair == '11') {sunburst = 14;}
+      else if (pair == '12') {sunburst = 13;}
+      else if (pair == '13') {sunburst = 4;}
+      else if (pair == '14') {sunburst = 3;}
+      else if (pair == '15') {sunburst = 2;}
+      else if (pair == '16') {sunburst = 8;}
+      else if (pair == '17') {sunburst = 7;}
+      else if (pair == '18') {sunburst = 6;}
+      else if (pair == '19') {sunburst = 12;}
+      else if (pair == '20') {sunburst = 11;}
+      else if (pair == '21') {sunburst = 10;}
+      else if (pair == '22') {sunburst = 16;}
+      else if (pair == '23') {sunburst = 15;}
+      else {sunburst = 14;}
+      return sunburst;
+    }
+
+    /* returns x coordinate of a particular sunburst */
+    function x_coordinate(sunburst) {
+      var x_dim;
+      if (sunburst <= 4) {x_dim = 0;}
+      else if (sunburst >= 5 && sunburst <= 8) {x_dim = 1;}
+      else if (sunburst >= 9 && sunburst <= 12) {x_dim = 2;}
+      else {x_dim = 3;}
+      return x_dim;
+    }
+
+    /* returns y coordinate of a particular sunburst */
+    function y_coordinate(sunburst) {
+      var y_dim;
+      if (sunburst % 4 == 1) {y_dim = 0;}
+      else if (sunburst % 4 == 2) {y_dim = 1;}
+      else if (sunburst % 4 == 3) {y_dim = 2;}
+      else {y_dim = 3;}
+      return y_dim;
+    }
+
+    function rel_dim_val(x, be, wi){
+      var x_dim;
+      if(x == 0){
+        x_dim = 0.5 - (be/2) - wi;
+      } else if(x == 1) {
+        x_dim = 0.5 - (be/2);
+      } else if(x == 2) {
+        x_dim = 0.5 + (be/2);
+      } else {
+        x_dim = 0.5 + (be/2) + wi;
+      }
+      return x_dim;
+    }
+
+    function irr_dim_val(y, irr) {
+      var y_dim;
+      if(y == 0){
+        y_dim = 0.5 - (irr/2) - irr;
+      } else if(y == 1) {
+        y_dim = 0.5 - (irr/2);
+      } else if(y == 2) {
+        y_dim = 0.5 + (irr/2);
+      } else {
+        y_dim = 0.5 + (irr/2) + irr;
+      }
+      return y_dim;
+    }
+
+    /* generates number judgement task task trial-specific x parameters */
+    function calculate_x_values(sunburst) {
+      var dimension = relevant_dimension;
+      var xCoordinate = x_coordinate(sunburst);
+      var yCoordinate = y_coordinate(sunburst);
+      if (dimension == 'dots') {
+        var x_dim = rel_dim_val(xCoordinate, rel_be_distance, rel_wi_distance);
+        var y_dim = irr_dim_val(yCoordinate, irr_distance);
+        return x_dim;
+      } else {
+        var x_dim = irr_dim_val(yCoordinate, irr_distance);
+        var y_dim = rel_dim_val(xCoordinate, rel_be_distance, rel_wi_distance);
+        return x_dim;
+      }
+    }
+
+    /* generates number judgement task task trial-specific y parameters */
+    function calculate_y_values(sunburst) {
+      var dimension = relevant_dimension;
+      var xCoordinate = x_coordinate(sunburst);
+      var yCoordinate = y_coordinate(sunburst);
+      if (dimension == 'dots') {
+        var x_dim = rel_dim_val(xCoordinate, rel_be_distance, rel_wi_distance);
+        var y_dim = irr_dim_val(yCoordinate, irr_distance);
+        return y_dim;
+      } else {
+        var x_dim = irr_dim_val(yCoordinate, irr_distance);
+        var y_dim = rel_dim_val(xCoordinate, rel_be_distance, rel_wi_distance);
+        return y_dim;
+      }
+    }
+
+    /* generates category training task trial-specific stimuli parameters */
+    function calculate_sunburst_values(sunburst) {
+      var dimension = relevant_dimension;
+      var xCoordinate = x_coordinate(sunburst);
+      var yCoordinate = y_coordinate(sunburst);
+      if (dimension == 'dots') {
+        var x_dim = rel_dim_val(xCoordinate, rel_be_distance, rel_wi_distance);
+        var y_dim = irr_dim_val(yCoordinate, irr_distance);
+        return generate_stim(x_dim, y_dim);
+      } else {
+        var x_dim = irr_dim_val(yCoordinate, irr_distance);
+        var y_dim = rel_dim_val(xCoordinate, rel_be_distance, rel_wi_distance);
+        return generate_stim(x_dim, y_dim);
+      }
+    }
+
+    /* generates oddball task trial-specific stimuli parameters */
+    function calculate_pair_values(pair, correct, rel_be_distance, rel_wi_distance, irr_distance) {
+      var bool = boolean();
+      var rel_be_distance = rel_be_distance;
+      var rel_wi_distance = rel_wi_distance;
+      var irr_distance = irr_distance;
+      if (bool) {
+        var same_ball = small_sunburst(pair);
+        var sx_coord = x_coordinate(same_ball);
+        var sy_coord = y_coordinate(same_ball);
+        var odd_ball = big_sunburst(pair);
+        var ox_coord = x_coordinate(odd_ball);
+        var oy_coord = y_coordinate(odd_ball);
+      } else {
+        var odd_ball = small_sunburst(pair);
+        var ox_coord = x_coordinate(odd_ball);
+        var oy_coord = y_coordinate(odd_ball);
+        var same_ball = big_sunburst(pair);
+        var sx_coord = x_coordinate(same_ball);
+        var sy_coord = y_coordinate(same_ball);
+      }
+      if (relevant_dimension == 'dots') {
+        var ox_dim = rel_dim_val(ox_coord, rel_be_distance, rel_wi_distance);
+        var oy_dim = irr_dim_val(oy_coord, irr_distance);
+        var sx_dim = rel_dim_val(sx_coord, rel_be_distance, rel_wi_distance);
+        var sy_dim = irr_dim_val(sy_coord, irr_distance);
+      } else {
+        var ox_dim = irr_dim_val(ox_coord, irr_distance);
+        var oy_dim = rel_dim_val(oy_coord, rel_be_distance, rel_wi_distance);
+        var sx_dim = irr_dim_val(sx_coord, irr_distance);
+        var sy_dim = rel_dim_val(sy_coord, rel_be_distance, rel_wi_distance);
+      }
+      var set = generate_set(sx_dim, sy_dim, ox_dim, oy_dim, correct)
+      return set;
+    }
+
+    /* depicts the set of stimuli in the scene */
+    function generate_set(same_dot, same_line, odd_dot, odd_line, correct) {
+      var html = '<div style="position: relative; width:'+((stim_width_height+stim_padding)*4 + stim_padding)+'px; height:'+(stim_width_height+stim_padding)+'px;">';
+      if (correct == '1'){
+        html += '<div class="oddball-stim ex1">'+generate_stim(odd_dot, odd_line)+'</div>'+
+          '<div class="oddball-stim ex2">'+generate_stim(same_dot, same_line)+'</div>'+
+          '<div class="oddball-stim ex3">'+generate_stim(same_dot, same_line)+'</div>'+
+          '<div class="oddball-stim ex4">'+generate_stim(same_dot, same_line)+'</div>';
+      } else if (correct == '2') {
+        html += '<div class="oddball-stim ex1">'+generate_stim(same_dot, same_line)+'</div>'+
+          '<div class="oddball-stim ex2">'+generate_stim(odd_dot, odd_line)+'</div>'+
+          '<div class="oddball-stim ex3">'+generate_stim(same_dot, same_line)+'</div>'+
+          '<div class="oddball-stim ex4">'+generate_stim(same_dot, same_line)+'</div>';
+      } else if (correct == '3') {
+        html += '<div class="oddball-stim ex1">'+generate_stim(same_dot, same_line)+'</div>'+
+          '<div class="oddball-stim ex2">'+generate_stim(same_dot, same_line)+'</div>'+
+          '<div class="oddball-stim ex3">'+generate_stim(odd_dot, odd_line)+'</div>'+
+          '<div class="oddball-stim ex4">'+generate_stim(same_dot, same_line)+'</div>';
+      } else {
+        html += '<div class="oddball-stim ex1">'+generate_stim(same_dot, same_line)+'</div>'+
+          '<div class="oddball-stim ex2">'+generate_stim(same_dot, same_line)+'</div>'+
+          '<div class="oddball-stim ex3">'+generate_stim(same_dot, same_line)+'</div>'+
+          '<div class="oddball-stim ex4">'+generate_stim(odd_dot, odd_line)+'</div>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    /* draws each sunburst individually */
+    function generate_stim(dot_dim, line_dim) {
+        // params
+        var w = stim_width_height;
+        var r = stim_width_height/4;
+        var x = w / 2;
+        var y = w / 2;
+        var circle_r = stim_width_height / 200;
+        var minLineLength = 10;
+        var dot_density = min_dot_density + (max_dot_density-min_dot_density)*dot_dim;
+        var line_density = min_line_density + (max_line_density-min_line_density)*line_dim;
+
+        // svg string
+        var str = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + w + '">'
+
+        //Code for drawing the lines that come out of the circle.
+        //Each line starts in the center of the circle and is drawn outward
+        for (var i = 0; i < line_density; i++) {
+          var angle = Math.random() * Math.PI / 2;
+          var lineLength = r + minLineLength + (r - minLineLength) * Math.random();
+          var x2 = Math.cos(angle) * lineLength;
+          var y2 = Math.sin(angle) * lineLength;
+          if (Math.random() < 0.5) {
+            x2 = -x2;
+          }
+          if (Math.random() < 0.5) {
+            y2 = -y2;
+          }
+          x2 = x + x2;
+          y2 = y + y2;
+          str += '<line x1="' + x + '" y1="' + y + '" x2="' + x2 + '" y2="' + y2 + '" style="stroke:rgb(65,105,225); stroke-width:1;" />';
+        }
+
+        // draw circle
+        str += '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" style="stroke:rgb(65,105,225); stroke-width:2; fill: rgb(255,255,255);"/>'
+
+        //Code for creating and dispersing the dots
+        for (var j = 0; j < dot_density; j++) {
+          do {
+            var x2 = Math.random() * 2 * r + x - r;
+            var y2 = Math.random() * 2 * r + y - r;
+          } while ((Math.pow(x - x2, 2) + Math.pow(y - y2, 2)) > Math.pow(r - circle_r - 2, 2));
+          str += '<circle cx="' + x2 + '" cy="' + y2 + '" r="' + circle_r + '" style="fill:rgb(65,105,225);" />';
+        }
+
+        str += "</svg>";
+
+        return str;
+    }
+
+    /* determines if the last answer was correct */
+    function last_correct() {
+      return jsPsych.data.get().last(1).values()[0].correct;
+    }
+
+    function too_slow() {
+      return jsPsych.randomization.sampleWithoutReplacement(['Snooze ya lose!', 'Oops!', 'Cmon Grandma!'], 1)[0]
+    }
+
+    function dot_stop_crit() {
+      return true;
+    }
+
+    function line_stop_crit() {
+      return true;
+    }
+
+    function lowest_distance(dot_distance, line_distance) {
+      if (jsPsych.data.get().last(3).values()[0].dot_dist >= dot_distance)
+      {var lowest_dot = dot_distance}
+      if (jsPsych.data.get().last(3).values()[0].dot_dist >= line_distance)
+      {var lowest_line = line_distance}
+      if (relevant_dimension == 'dots') {
+        rel_be_distance = lowest_dot;
+        rel_wi_distance = lowest_dot;
+        irr_distance = lowest_line;
+      } else {
+        rel_be_distance = lowest_line;
+        rel_wi_distance = lowest_line;
+        irr_distance = lowest_dot;
+      }
+    }
+
+    /* timeline creation */
+    var timeline = [];
+
+  /* INSTRUCTIONS */
+
+    var consent_form = {
+      type: "html-button-response",
+      stimulus: "<p>Thanks for agreeing to do our experiment which involves viewing stimuli and making simple judgments about them.</p> \
+      <p>The study takes approximately ___ minutes to complete.  Participation poses minimal risk, meaning the risk is no greater than that of normal, everyday activities.</p> \
+      <p>Your responses will be anonymous.  You are free to stop the experiment by closing your browser window at any time.</p> \
+      <p>If you have any questions, you can contact: </p> \
+      <p><strong>Prof. Jan Andrews</strong> at <link>andrewsj@vassar.edu</link>, or <strong>Prof. Josh de Leeuw</strong> at <link>jdeleeuw@vassar.edu</link></p> \
+      <p>By clicking 'I agree,' you affirm that you are at least 18 years of age, which is the minimum age to participate in this study.</p> ",
+      choices: ['I agree'],
+      post_trial_gap: 250,
+    }
+    timeline.push(consent_form)
+
+    var overview = {
+      type: "html-keyboard-response",
+      stimulus: "<p>Welcome to the experiment!  You will be asked to complete one simple task following these instructions. </p> \
+      <p>Please close all other browser windows before you proceed. As you get better at the task, it will get harder.</p> \
+      <p>Press any key to continue. (You may need to click the screen first!)</p>",
+      post_trial_gap: 250,
+    }
+    timeline.push(overview)
+
+    var ob_instructions = {
+      type: "html-keyboard-response",
+      choices: '1',
+      stimulus: "Four sunbursts will appear in the center of the screen. Use the number keys on the top left of your keyboard.<p> \
+      <p> If the <strong>first</strong> star from the left is the odd one out, press <strong>1</strong>. If the <strong>second</strong> star from the left is the odd one out, press <strong>2</strong>. </p> \
+      <p>If the <strong>third</strong> star from the left is the odd one out, press <strong>3</strong>. If the <strong>fourth</strong> star from the left is the odd one out, press <strong>4</strong>. </p> \
+      <p><div style='float: left;'><img src='jspsych-master/img/example_ob.png'></img></p> \
+      <p class='small'> ex. <strong>Press 1</strong> to continue</p></div>",
+      post_trial_gap: 250,
+      data: {test_part: 'instructions'}
+    };
+    timeline.push(ob_instructions);
+
+    var ob_instructions_pt2 = {
+      type: "html-keyboard-response",
+      stimulus: "<p> On each trial you will have up to <strong>4 seconds</strong> to enter your response. </p> \
+      <p>After that, it will move on to the next trial, so please do your best to respond within that time! </p> \
+      <p>After you respond, you will receive feedback as to whether your response was correct, </p> \
+      <p>indicated by a green box (for correct) and red box (for incorrect). </p> \
+      <p>The experiment will now begin! Press any key to continue. </p>",
+      post_trial_gap: 250,
+      data: {test_part: 'instructions'}
+    };
+    timeline.push(ob_instructions_pt2);
+
+    var three = {
+      type: 'html-keyboard-response',
+      stimulus: "<div class='center';'><img src='jspsych-master/img/three.png'></img>",
+      trial_duration: 1000,
+      choices: jsPsych.NO_KEYS,
+      data: {test_part: 'instructions'}
+    }
+
+    var two = {
+      type: 'html-keyboard-response',
+      stimulus: "<div class='center';'><img src='jspsych-master/img/two.png'></img>",
+      trial_duration: 1000,
+      choices: jsPsych.NO_KEYS,
+      data: {test_part: 'instructions'}
+    }
+
+    var one = {
+      type: 'html-keyboard-response',
+      stimulus: "<div class='center';'><img src='jspsych-master/img/one.png'></img>",
+      trial_duration: 1000,
+      choices: jsPsych.NO_KEYS,
+      data: {test_part: 'instructions'}
+    }
+
+    var countdown = {
+      timeline: [three, two, one],
+      data: {test_part: 'instructions'},
+    }
+    timeline.push(countdown);
+
+
+    /* universal pause method for each trial */
+    var pause = {
+      type: 'html-keyboard-response',
+      stimulus: function () {
+        if (jsPsych.data.get().last(1).values()[0].test_part == 'instructions') {return ''}
+        if (jsPsych.data.get().last(2).values()[0].key_press != null) {return ''}
+        else {return "<p>Still with us? Press any key to continue. </p>"}
+      },
+      choices: function () {
+        if (jsPsych.data.get().last(1).values()[0].test_part == 'instructions') {return jsPsych.NO_KEYS}
+        if (jsPsych.data.get().last(2).values()[0].key_press != null) {return jsPsych.NO_KEYS}
+      },
+      trial_duration: function () {
+        if (jsPsych.data.get().last(1).values()[0].test_part == 'instructions') {return 250}
+        if (jsPsych.data.get().last(2).values()[0].key_press != null) {return 250}
+      },
+      data: {test_part: 'pause'}
+    }
+
+    var test = {
+      type: 'html-keyboard-response',
+      stimulus: '',
+      choices: ['1', '2', '3', '4'],
+      trial_duration: 4000,
+      timeline_variables: [
+        {pair: 'dots'},
+        {pair: 'lines'},
+      ],
+      sample: {type: 'with-replacement', size: 1},
+      on_start: function(trial) {
+        if(boolean()) {var dl = 'dots'}
+        else {var dl = 'lines'}
+        var dot_dist = dot_distance;
+        var line_dist = line_distance;
+        var correct = randomize_correct();
+        var question = '<div class="center"><p>Choose the odd-ball</p></div>';
+        if (dl == 'dots') /* dot dimension */ {
+          var small_dot = Math.random()*(1.0-dot_distance);
+          var big_dot = small_dot+dot_distance;
+          var lines = Math.random();
+          if (boolean()) {
+            var set = generate_set(small_dot, lines, big_dot, lines, correct);
+          } else {
+            var set = generate_set(big_dot, lines, small_dot, lines, correct);
+          }
+        } else /* line dimension*/{
+          var small_line = Math.random()*(1.0-line_distance);
+          var big_line = small_line+line_distance;
+          var dots = Math.random();
+          if (boolean()) {
+            var set = generate_set(dots, small_line, dots, big_line, correct);
+          } else {
+            var set = generate_set(dots, big_line, dots, small_line, correct);
+          }
+        }
+        var stimulus = set + question;
+        trial.stimulus = stimulus;
+        trial.data = {
+          dot_dist: dot_dist,
+          line_dist: line_dist,
+          pair_type: dl,
+          test_part: 'test',
+          correct_response: correct,
+          stimulus: set,
+        }
+      },
+      on_finish: function(data) {
+        // data.reversal = true or false;
+        data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
+        if(data.pair_type == 'dots'){
+          dot_distance = adjust_DLdistance(dot_distance, data.correct);
+        } else {
+          line_distance = adjust_DLdistance(line_distance, data.correct);
+        }
+        //var one_back_dot = jsPsych.data.get().filter({test_part: 'test', pair_type: 'dots'}).last(1).values()[0].data.correct;
+        //var two_back_dot = jsPsych.data.get().filter({test_part: 'test', pair_type: 'dots'}).last(2).values()[0].data.correct;
+        //if((one_back_dot == true && two_back_dot == false) || (one_back_dot == false && two_back_dot == true)) {
+        //  dot_reversals += 1;
+        //  min_dot_dist = min_dot_dist * dot_reversals * recent_dot_dist / (dot_reversals+1);
+        //  if (dot_reversals >= 8) {return false}
+        //  else {return true}
+        //} else if (one_back_dot == null || two_back_dot == null) {
+        //    return true;
+        //} else {
+        //  return true;
+        //}
+        // jsPsych.data.get().filter({pair_type: 'lines', reversal: true}).select('line_dist').mean();
+        //var one_back_line = jsPsych.data.get().filter({test_part: 'test', pair_type: 'lines'}).last(1).values()[0].data.correct;
+        //var two_back_line = jsPsych.data.get().filter({test_part: 'test', pair_type: 'lines'}).last(2).values()[0].data.correct;
+        //if((one_back_line == true && two_back_line == false) || (one_back_line == false && two_back_line == true)) {
+        //  line_reversals += 1;
+        //  min_line_dist = min_line_dist * line_reversals * recent_line_dist / (line_reversals+1);
+        //  if (line_reversals >= 8) {return false}
+        //  else {return true}
+        //} else if (one_back_line == null || two_back_line == null) {
+        //    return true;
+        //} else {
+        //  return true;
+        //}
+      },
+    }
+
+    /* feedback for oddball trials */
+    var feedback = {
+      type: "html-keyboard-response",
+      stimulus: function() {
+        var lastCorrect = last_correct();
+        var html = "<style>";
+        var stimulus = jsPsych.data.get().last(1).values()[0].stimulus;
+        var correct_response = jsPsych.data.get().last(1).values()[0].correct_response;
+        var actualResponse = jsPsych.data.get().last(1).values()[0].key_press - 48;
+        html += ".ex"+correct_response+" { border: 11px solid limegreen; padding: 0;} ";
+        if(lastCorrect == true) {
+          html += "</style>"
+          html += "<p style='position:absolute; width: 100%; left: 0;'>Correct!</p>"
+        } else if (jsPsych.data.get().last(1).values()[0].key_press == null) {
+            html += ".ex"+actualResponse+" { border: 11px solid red; padding: 0;} ";
+            html += "</style>"
+            html += jsPsych.data.get().last(1).values()[0].stimulus +
+              "<p style='position:absolute; width: 100%; left: 0;'>" + too_slow();
+            return html;
+        } else {
+          html += ".ex"+actualResponse+" { border: 11px solid red; padding: 0;} ";
+          html += "</style>"
+          html += "<p style='position:absolute; width: 100%; left: 0;'>Incorrect!</p>"
+        }
+        stimulus += html;
+        return stimulus;
+      },
+      choices: jsPsych.NO_KEYS,
+      trial_duration: 750,
+    }
+
+    var phase_one = {
+      timeline: [pause, test, feedback],
+      repetitions: 60,
+      /*loop_function: function(data) {
+        if (dot_stop_crit() && line_stop_crit()) {return false}
+        else {return true}
+      },*/
+    }
+    timeline.push(phase_one);
+
+/*    var survey = {
+      type: 'survey-text',
+      preamble: "<p>Please use this space to provide feedback on the experiment, such as:</p>",
+      button_label: ["continue"],
+      questions: [
+        {prompt: "Were there any technical problems?"},
+        {prompt: "Were the instructions clear?"},
+        {prompt: "Was 4 seconds long enough to respond?"},
+        {prompt: "Was it somewhat fun?"},
+        {prompt: "Please indicate if you have been exposed to the stimuli before."},
+        {prompt: "Anything else you’d like to share."},
+      ],
+    }
+    timeline.push(survey);
+*/
+    var debrief = {
+      type: "html-keyboard-response",
+      choices: jsPsych.NO_KEYS,
+      stimulus: "<p>Thank you for participating in this experiment!  This is a pilot test of one component of a larger experiment we are designing.<p> \
+      <p>The purpose of this task is to determine the smallest difference in the number of dots or lines on the sunbursts that people can reliably detect.</p> \
+      <p>In the larger study we will test whether performance on this task is influenced by learning to categorize the patterns;</p> \
+      <p>for instance, are people who learn to categorize them able to distinguish smaller differences when the odd one out is in a different category?</p> \
+      <p>Please don’t discuss the experiment with anyone who might participate in it this summer.</p> \
+      <p>You may close your browser window now that the experiment is over. Thank you!</p>",
+      post_trial_gap: 250,
+      data: {test_part: 'debrief'}
+    };
+    timeline.push(debrief);
+
+    /* start the experiment */
+    jsPsych.init({timeline: timeline, display_element: 'target'});
+
+  </script>
+</html>

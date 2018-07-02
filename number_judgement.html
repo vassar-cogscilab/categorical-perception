@@ -28,90 +28,54 @@
   <body></body>
 
   <script>
-  var stim_width_height = 200;
-  var min_dot_density = 100;
-  var max_dot_density = 2000;
-  var min_line_density = 30;
-  var max_line_density = 550;
-  var dim_a = 0.5;
-  var dim_b = 0.5;
 
-  var rel_be_distance = 0.2;
-  var rel_wi_distance = 0.2;
-  var irr_distance = 0.2;
+  //CONSTANTS
+    var stim_width_height = 200;
+    var min_dot_density = 100;
+    var max_dot_density = 2000;
+    var min_line_density = 30;
+    var max_line_density = 550;
 
-    /* determines which dimension is relevant throughout the experiment */
+  //PARTICIPANT
+    // determines which dimension is relevant throughout the experiment
     var relevant_dimension = jsPsych.randomization.sampleWithoutReplacement(['dots', 'lines'], 1) [0];
 
-    /* create timeline */
-    var timeline = [];
-
-    /* INSTRUCTIONS */
-
-    var welcome = {
-      type: "html-keyboard-response",
-      stimulus: "Welcome to the experiment. Press any key to begin."
-    };
-    timeline.push(welcome);
-
-    var instructions = {
-      type: "html-keyboard-response",
-      choices: 'T',
-      stimulus: "In this second task, you will be asked to identify two different kinds of sunbursts. </p> \
-      <p>You will be presented with one sunburst at a time and asked, <em>Is this a <strong>Tig (T)</strong> or a <strong>Fep (F)</strong>?</em></p> \
-    	<p>To indicate that the sunburst is a <strong>Tig</strong>, <em>press <strong>T</strong></em> on the keyboard. </p> \
-    	<p>To indicate that the sunburst is a <strong>Fep</strong>, <em>press <strong>F</strong></em> on the keyboard. </p> \
-      <p><div style='float: left;'><img src='jspsych-master/img/example_ct.png'></img></p> \
-      <p class='small'> ex. <strong>Press T</strong> to continue</p></div></p>",
-      post_trial_gap: 250,
-    };
-    timeline.push(instructions);
-
-    var instructions_pt2 = {
-      type: "html-keyboard-response",
-      stimulus: "After you respond, you will receive feedback as to whether your response was correct. </p> \
-      <p>Initially you'll need to guess, but you should eventually learn to distinguish the two types. </p> \
-      <p>Just like before, you will have up to 4 seconds to enter your response. </p> \
-      <p>After that, it will move on to the next trial, so please do your best to respond within that time! </p> \
-      <p>Press any key to continue. </p>",
-      post_trial_gap: 250,
-    };
-    timeline.push(instructions_pt2);
-
-    /*HELPER FUNCTIONS*/
-
-    /* determines which sunburst will be the odd-ball */
+  //RANDOMIZERS
+    // determines which sunburst will be the odd-ball
     function randomize_correct() {
       return jsPsych.randomization.sampleWithoutReplacement(['1', '2', '3', '4'], 1)[0];
     }
-
-    /* randomly samples a particular sunburst from the scene */
+    // randomly samples a particular sunburst from the scene
     function randomize_sunburst() {
       return jsPsych.randomization.sampleWithoutReplacement([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], 1)[0];
     }
-
-    /* randomly chooses which pair on the relevant-between dimension to present in the odd_ball task */
+    // randomly chooses which pair on the relevant-between dimension to present in the odd_ball task
     function randomize_be_pair() {
       return jsPsych.randomization.sampleWithoutReplacement([1, 2, 3, 4], 1)[0];
     }
-
-    /* randomly chooses which pair on the relevant-between dimension to present in the odd_ball task */
+    // randomly chooses which pair on the relevant-between dimension to present in the odd_ball task
     function randomize_wi_pair() {
       return jsPsych.randomization.sampleWithoutReplacement([5, 6, 7, 8, 9, 10, 11, 12], 1)[0];
     }
-
-    /* randomly chooses which pair on the relevant-between dimension to present in the odd_ball task */
+    // randomly chooses which pair on the relevant-between dimension to present in the odd_ball task
     function randomize_irr_pair() {
       return jsPsych.randomization.sampleWithoutReplacement([13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24], 1)[0];
     }
-
-    /* randomly generates true or false */
+    // randomly generates true or false
     function boolean() {
       var boolean = jsPsych.randomization.sampleWithoutReplacement([true, false], 1)[0];
       return boolean;
     }
 
-    /* determines if the sunburst is a tig or a fep */
+  //HELPERS
+    // randomly picks more or less for number judgement task
+    function more_or_less() {
+      var bool = boolean()
+      if (bool) {return "more"}
+      else {return "less"}
+    }
+
+    // determines if the sunburst is a tig or a fep
     function tig_fep(sunburst) {
       if (sunburst <= 8) {var correct = 'T';}
       else {var correct = 'F';}
@@ -220,87 +184,37 @@
       return y_dim;
     }
 
-    /* using helper functions above, generates category training task trial-specific stimuli parameters*/
-    function calculate_sunburst_values(sunburst) {
+    function calculate_x_values(sunburst) {
       var dimension = relevant_dimension;
       var xCoordinate = x_coordinate(sunburst);
       var yCoordinate = y_coordinate(sunburst);
       if (dimension == 'dots') {
         var x_dim = rel_dim_val(xCoordinate, rel_be_distance, rel_wi_distance);
         var y_dim = irr_dim_val(yCoordinate, irr_distance);
-        return generate_stim(x_dim, y_dim);
+        return x_dim;
       } else {
         var x_dim = irr_dim_val(yCoordinate, irr_distance);
         var y_dim = rel_dim_val(xCoordinate, rel_be_distance, rel_wi_distance);
-        return generate_stim(x_dim, y_dim);
+        return x_dim;
       }
     }
 
-    /* using helper functions above, generates oddball task trial-specific stimuli parameters*/
-    function calculate_pair_values(pair, correct, rel_be_distance, rel_wi_distance, irr_distance) {
-      var bool = boolean();
-      var rel_be_distance = rel_be_distance;
-      var rel_wi_distance = rel_wi_distance;
-      var irr_distance = irr_distance;
-      if (bool) {
-        var same_ball = small_sunburst(pair);
-        var sx_coord = x_coordinate(same_ball);
-        var sy_coord = y_coordinate(same_ball);
-        var odd_ball = big_sunburst(pair);
-        var ox_coord = x_coordinate(odd_ball);
-        var oy_coord = y_coordinate(odd_ball);
+    function calculate_y_values(sunburst) {
+      var dimension = relevant_dimension;
+      var xCoordinate = x_coordinate(sunburst);
+      var yCoordinate = y_coordinate(sunburst);
+      if (dimension == 'dots') {
+        var x_dim = rel_dim_val(xCoordinate, rel_be_distance, rel_wi_distance);
+        var y_dim = irr_dim_val(yCoordinate, irr_distance);
+        return y_dim;
       } else {
-        var odd_ball = small_sunburst(pair);
-        var ox_coord = x_coordinate(odd_ball);
-        var oy_coord = y_coordinate(odd_ball);
-        var same_ball = big_sunburst(pair);
-        var sx_coord = x_coordinate(same_ball);
-        var sy_coord = y_coordinate(same_ball);
+        var x_dim = irr_dim_val(yCoordinate, irr_distance);
+        var y_dim = rel_dim_val(xCoordinate, rel_be_distance, rel_wi_distance);
+        return y_dim;
       }
-      if (relevant_dimension == 'dots') {
-        var ox_dim = rel_dim_val(ox_coord, rel_be_distance, rel_wi_distance);
-        var oy_dim = irr_dim_val(oy_coord, irr_distance);
-        var sx_dim = rel_dim_val(sx_coord, rel_be_distance, rel_wi_distance);
-        var sy_dim = irr_dim_val(sy_coord, irr_distance);
-      } else {
-        var ox_dim = irr_dim_val(ox_coord, irr_distance);
-        var oy_dim = rel_dim_val(oy_coord, rel_be_distance, rel_wi_distance);
-        var sx_dim = irr_dim_val(sx_coord, irr_distance);
-        var sy_dim = rel_dim_val(sy_coord, rel_be_distance, rel_wi_distance);
-      }
-      var set = generate_set(sx_dim, sy_dim, ox_dim, oy_dim, correct)
-      return set;
     }
 
-    /* depicts the set of stimuli in the scene */
-    function generate_set(same_dot, same_line, odd_dot, odd_line, correct) {
-      var html = '<div style="position: relative; width:'+((stim_width_height+stim_padding)*4 + stim_padding)+'px; height:'+(stim_width_height+stim_padding)+'px;">';
-      if (correct == '1'){
-        html += '<div class="oddball-stim ex1">'+generate_stim(odd_dot, odd_line)+'</div>'+
-          '<div class="oddball-stim ex2">'+generate_stim(same_dot, same_line)+'</div>'+
-          '<div class="oddball-stim ex3">'+generate_stim(same_dot, same_line)+'</div>'+
-          '<div class="oddball-stim ex4">'+generate_stim(same_dot, same_line)+'</div>';
-      } else if (correct == '2') {
-        html += '<div class="oddball-stim ex1">'+generate_stim(same_dot, same_line)+'</div>'+
-          '<div class="oddball-stim ex2">'+generate_stim(odd_dot, odd_line)+'</div>'+
-          '<div class="oddball-stim ex3">'+generate_stim(same_dot, same_line)+'</div>'+
-          '<div class="oddball-stim ex4">'+generate_stim(same_dot, same_line)+'</div>';
-      } else if (correct == '3') {
-        html += '<div class="oddball-stim ex1">'+generate_stim(same_dot, same_line)+'</div>'+
-          '<div class="oddball-stim ex2">'+generate_stim(same_dot, same_line)+'</div>'+
-          '<div class="oddball-stim ex3">'+generate_stim(odd_dot, odd_line)+'</div>'+
-          '<div class="oddball-stim ex4">'+generate_stim(same_dot, same_line)+'</div>';
-      } else {
-        html += '<div class="oddball-stim ex1">'+generate_stim(same_dot, same_line)+'</div>'+
-          '<div class="oddball-stim ex2">'+generate_stim(same_dot, same_line)+'</div>'+
-          '<div class="oddball-stim ex3">'+generate_stim(same_dot, same_line)+'</div>'+
-          '<div class="oddball-stim ex4">'+generate_stim(odd_dot, odd_line)+'</div>';
-      }
-      html += '</div>';
-      return html;
-    }
-
-    /* draws each sunburst individually */
+    // dispays individual sunburst
     function generate_stim(dot_dim, line_dim) {
         // params
         var w = stim_width_height;
@@ -309,8 +223,8 @@
         var y = w / 2;
         var circle_r = stim_width_height / 200;
         var minLineLength = 10;
-        var dot_density = min_dot_density + (max_dot_density-min_dot_density)*dot_dim;
-        var line_density = min_line_density + (max_line_density-min_line_density)*line_dim;
+        dot_density = min_dot_density + (max_dot_density-min_dot_density)*dot_dim;
+        line_density = min_line_density + (max_line_density-min_line_density)*line_dim;
 
         // svg string
         var str = '<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + w + '">'
@@ -350,7 +264,7 @@
         return str;
       }
 
-    /* determines if the last answer was correct */
+    // determines if the last answer was correct
     function last_correct() {
       return jsPsych.data.get().last(1).values()[0].correct;
     }
@@ -366,7 +280,103 @@
       return jsPsych.randomization.sampleWithoutReplacement(['Snooze ya lose!', 'Oops!', 'Cmon Grandma!'], 1)[0]
     }
 
-    /* test trials */
+    function nj_helper(dimension, random, x_dim, y_dim, dl, ml) {
+      if (dl == "dots") {
+        if (ml == "more") {
+          if (dimension == "dots") {
+            if (random == 1 || random == 2 || random == 3 || random == 4 || random == 5 || random == 6 || random == 7 || random == 8 || random == 13 || random == 14 || random == 15 || random == 16) {
+              var num_dim = x_dim - rel_wi_distance;
+              var number = Math.round(min_dot_density + (max_dot_density-min_dot_density)*num_dim);
+            } else {
+              var num_dim = x_dim - rel_be_distance;
+              var number = Math.round(min_dot_density + (max_dot_density-min_dot_density)*num_dim);
+            }
+          } else/* dimension == "lines" */{
+            var num_dim = x_dim - irr_distance;
+            var number = Math.round(min_dot_density + (max_dot_density-min_dot_density)*num_dim);
+          }
+        } else/* ml == "less" */{
+          if (dimension == "dots") {
+            if (random == 1 || random == 2 || random == 3 || random == 4 || random == 9 || random == 10 || random == 11 || random == 12 || random == 13 || random == 14 || random == 15 || random == 16) {
+              var num_dim = x_dim + rel_wi_distance;
+              var number = Math.round(min_dot_density + (max_dot_density-min_dot_density)*num_dim);
+            } else {
+              var num_dim = x_dim + rel_be_distance;
+              var number = Math.round(min_dot_density + (max_dot_density-min_dot_density)*num_dim);
+            }
+          } else/* dimension == "lines" */{
+            var num_dim = x_dim + irr_distance;
+            var number = Math.round(min_dot_density + (max_dot_density-min_dot_density)*num_dim);
+          }
+        }
+      } else/* dl == "lines" */{
+        if (ml == "more") {
+          if (dimension == "dots") {
+            var num_dim = x_dim - irr_distance;
+            var number = Math.round(min_line_density + (max_line_density-min_line_density)*num_dim);
+          } else/* dimension == "lines" */{
+            if (random == 1 || random == 2 || random == 3 || random == 4 || random == 5 || random == 6 || random == 7 || random == 8 || random == 13 || random == 14 || random == 15 || random == 16) {
+              var num_dim = x_dim - rel_wi_distance;
+              var number = Math.round(min_line_density + (max_line_density-min_line_density)*num_dim);
+            } else {
+              var num_dim = x_dim - rel_be_distance;
+              var number = Math.round(min_line_density + (max_line_density-min_line_density)*num_dim);
+            }
+          }
+        } else/* ml == "less" */{
+          if (dimension == "dots") {
+            var num_dim = x_dim + irr_distance;
+            var number = Math.round(min_line_density + (max_line_density-min_line_density)*num_dim);
+          } else/* dimension == "lines" */{
+            if (random == 1 || random == 2 || random == 3 || random == 4 || random == 9 || random == 10 || random == 11 || random == 12 || random == 13 || random == 14 || random == 15 || random == 16) {
+              var num_dim = x_dim + rel_wi_distance;
+              var number = Math.round(min_line_density + (max_line_density-min_line_density)*num_dim);
+            } else {
+              var num_dim = x_dim + rel_be_distance;
+              var number = Math.round(min_line_density + (max_line_density-min_line_density)*num_dim);
+            }
+          }
+        }
+      }
+      var question = "<p>" + number + " " + dl + "?</p>";
+      return '<div class="center">' + question + '</p></div>';
+    }
+
+    // create timeline
+    var timeline = [];
+
+  // INSTRUCTIONS
+    var welcome = {
+      type: "html-keyboard-response",
+      stimulus: "Welcome to the experiment. Press any key to begin."
+    };
+    timeline.push(welcome);
+
+    var instructions = {
+      type: "html-keyboard-response",
+      choices: 'L',
+      stimulus: "In this second task, you will be asked to estimate the relative amount of dots or lines on a particular sunburst. </p> \
+      <p>You will be presented with one sunburst at a time and asked to respond to statements like, <em>400 lines?</em></p> \
+      <p>To indicate that there are <strong>more</strong> than the stated amount, <em>press <strong>M</strong></em> on the keyboard. </p> \
+      <p>To indicate that there are <strong>less</strong> than the stated amount, <em>press <strong>L</strong></em> on the keyboard. </p> \
+      <p><div class='center';'><img src='jspsych-master/img/example_nj.png'></img></p> \
+      <p class='small'> ex. <strong>Press L</strong> to continue</p></div></p>",
+      post_trial_gap: 250,
+    };
+    {timeline.push(instructions);}
+
+    var instructions_pt2 = {
+      type: "html-keyboard-response",
+      stimulus: "<p>After you respond, you will receive feedback as to whether your response was correct. </p> \
+      <p>It may be difficult to estimate the amount of dots or lines, but just try your best to answer correctly. </p> \
+      <p>Just like before, you will have up to 4 seconds to enter your response. </p> \
+      <p>After that, it will move on to the next trial, so please do your best to respond within that time! </p> \
+      <p>Press any key to continue!</p>",
+      post_trial_gap: 250,
+    };
+    {timeline.push(instructions_pt2);}
+
+    // test trials
     var pause = {
       type: 'html-keyboard-response',
       stimulus: function () {
@@ -382,31 +392,45 @@
       data: {test_part: 'pause'}
     }
 
-    /* category training task real trial */
+    // number judgement task real trial
     var test = {
       type: "html-keyboard-response",
       stimulus: '',
       trial_duration: 4000,
-      choices: ['T', 'F',],
+      choices: ['M', 'L',],
       on_start: function(trial) {
+        var dimension = relevant_dimension;
         var random = randomize_sunburst();
-        var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(random) + '</div>';
-        var correct_response = tig_fep(random);
-        var question = '<div class="center"><p>"Is this a Tig (T) or a Fep (F)?"</p></div>';
+        var x_dim = calculate_x_values(random);
+        var y_dim = calculate_y_values(random);
+        var sunburst = '<div class="oddball-stim">' + generate_stim(x_dim, y_dim) + '</div>';
+        var dots = min_dot_density + (max_dot_density-min_dot_density)*x_dim;
+        var lines = min_line_density + (max_line_density-min_line_density)*y_dim;
+        var bool1 = boolean();
+        var bool2 = boolean();
+        if (bool1) {var dl = "dots"}
+        else {var dl = "lines"}
+        if (bool2) {var ml = "more"}
+        else {"less"}
+        var question = nj_helper(dimension, random, x_dim, y_dim, dl, ml);
+        if (ml == "more") {var correct_response = 'M'}
+        else {correct_response = 'L'}
         var stimulus = sunburst + question;
-        trial.stimulus = stimulus;
         trial.data = {
+          dot_density: dots,
+          line_density: lines,
           test_part: 'test',
           correct_response: correct_response,
           stimulus: sunburst,
         }
+        trial.stimulus = stimulus;
       },
       on_finish: function(data) {
         data.correct = data.key_press == jsPsych.pluginAPI.convertKeyCharacterToKeyCode(data.correct_response);
       },
     }
 
-    /* feedback for category training trials */
+    // feedback for number judgement trials
     var feedback = {
       type: "html-keyboard-response",
       stimulus: function () {
@@ -416,23 +440,20 @@
           html += ".oddball-stim { border: 11px solid limegreen; padding: 0;} ";
           html += "</style>"
           html += jsPsych.data.get().last(1).values()[0].stimulus +
-            "<p style='position:absolute; width: 100%; left: 0;'>Correct, this is a " +
-            category_feedback() + "!</p>"
+            "<p style='position:absolute; width: 100%; left: 0;'>Correct!</p>"
           return html;
         } else if (jsPsych.data.get().last(1).values()[0].key_press == null) {
           html += ".oddball-stim { border: 11px solid red; padding: 0;} ";
           html += "</style>"
           html += jsPsych.data.get().last(1).values()[0].stimulus +
-            "<p style='position:absolute; width: 100%; left: 0;'>" + too_slow() + " This is a " +
-            category_feedback();
+            "<p style='position:absolute; width: 100%; left: 0;'>" + too_slow();
           return html;
         }
         else {
           html += ".oddball-stim { border: 11px solid red; padding: 0;} ";
           html += "</style>"
           html += jsPsych.data.get().last(1).values()[0].stimulus +
-            "<p style='position:absolute; width: 100%; left: 0;'>Incorrect, this is a " +
-            category_feedback() + "!</p>"
+            "<p style='position:absolute; width: 100%; left: 0;'>Incorrect!</p>"
           return html;
         }
       },
@@ -441,19 +462,18 @@
       },
       trial_duration: function () {
         if (jsPsych.data.get().last(1).values()[0].key_press != null) {return 500}
+        else {return 1000}
       },
     }
 
     var test_procedure = {
       timeline: [pause, test, feedback],
-      //timeline_variables: test_stimuli,
       repetitions: 20,
       randomize_order: true
     }
     timeline.push(test_procedure);
 
-    /* define debrief */
-
+    // define debrief
     var debrief_block = {
       type: "html-keyboard-response",
       stimulus: function() {
@@ -469,7 +489,7 @@
     };
     timeline.push(debrief_block);
 
-    /* start the experiment */
+    // start the experiment
     jsPsych.init({
       timeline: timeline,
       on_finish: function() {
