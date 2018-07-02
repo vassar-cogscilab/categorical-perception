@@ -103,11 +103,23 @@
     }
 
   //HELPERS
-    // determines if the sunburst is a tig or a fep
-    function tig_fep(sunburst) {
-      if (sunburst <= 8) {var correct = 'T';}
-      else {var correct = 'F';}
+    // determines if the sunburst is a lif or a mep
+    function lif_mep(sunburst) {
+      if (sunburst <= 8) {var correct = 'L';}
+      else {var correct = 'M';}
       return correct;
+    }
+
+    // rounds given number to given precision
+    function round(value, precision) {
+      if (precision < -4 && precision > 15)
+          {throw new ArgumentOutOfRangeException("precision", "Must be and integer between -4 and 15")}
+      if (precision >= 0) {return Math.round(value, precision)}
+      else {
+          precision = Math.pow(10, Math.abs(precision));
+          value = value + (5 * precision / 10);
+          return Math.round(value - (value % precision), 0);
+      }
     }
 
     // determines which sunburst will be less dense in a particular pair
@@ -444,8 +456,8 @@
 
     function category_feedback() {
       var correct_response = jsPsych.data.get().last(1).values()[0].correct_response;
-      if (correct_response == 'T') {var feedback = 'Tig'}
-      else {var feedback = 'Fep'}
+      if (correct_response == 'L') {var feedback = 'Lif'}
+      else {var feedback = 'Mep'}
       return feedback;
     }
 
@@ -523,13 +535,13 @@
 
     var ct_instructions = {
       type: "html-keyboard-response",
-      choices: 'T',
+      choices: 'L',
       stimulus: "In this second task, you will be asked to identify two different kinds of sunbursts. </p> \
-      <p>You will be presented with one sunburst at a time and asked, <em>Is this a <strong>Tig (T)</strong> or a <strong>Fep (F)</strong>?</em></p> \
-    	<p>To indicate that the sunburst is a <strong>Tig</strong>, <em>press <strong>T</strong></em> on the keyboard. </p> \
-    	<p>To indicate that the sunburst is a <strong>Fep</strong>, <em>press <strong>F</strong></em> on the keyboard. </p> \
+      <p>You will be presented with one sunburst at a time and asked, <em>Is this a <strong>Lif (L)</strong> or a <strong>Mep (M)</strong>?</em></p> \
+    	<p>To indicate that the sunburst is a <strong>Lif</strong>, <em>press <strong>L</strong></em> on the keyboard. </p> \
+    	<p>To indicate that the sunburst is a <strong>Mep</strong>, <em>press <strong>M</strong></em> on the keyboard. </p> \
       <p><div style='float: left;'><img src='jspsych-master/img/example_ct.png'></img></p> \
-      <p class='small'> ex. <strong>Press T</strong> to continue</p></div></p>",
+      <p class='small'> ex. <strong>Press L</strong> to continue</p></div></p>",
       post_trial_gap: 250,
       data: {test_part: 'instructions'}
     };
@@ -577,7 +589,7 @@
       type: "html-keyboard-response",
       stimulus: "<p>These two tasks will alternate during the experiment. How about trying out a few for practice? </p> \
             <p>We recommend you use your <strong>left</strong> hand for the first task<strong>(1, 2, 3, 4)</strong>"
-            + "and your <strong>right</strong> hand for the second task<strong>(T, F)</strong>. <p>Press any key to continue!</p>",
+            + "and your <strong>right</strong> hand for the second task<strong>(L, M)</strong>. <p>Press any key to continue!</p>",
       post_trial_gap: 500,
       data: {test_part: 'instructions'}
     }
@@ -593,7 +605,6 @@
       post_trial_gap: 250,
       data: {test_part: 'instructions'}
     };
-    timeline.push(last_remarks)
 
   //UNIVERSALS
     var pause = {
@@ -696,11 +707,11 @@
       type: "html-keyboard-response",
       stimulus: '',
       //trial_duration: 4000,
-      choices: ['T', 'F',],
+      choices: ['L', 'M',],
       on_start: function(trial) {
         var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(2) + '</div>';
-        var correct = 'T';
-        var question = '<div class="center"><p>"Is this a Tig (T) or a Fep (F)?"</p></div>';
+        var correct = 'L';
+        var question = '<div class="center"><p>"Is this a Lif (L) or a Mep (M)?"</p></div>';
         var stimulus = sunburst + question;
         trial.stimulus = stimulus;
         trial.data = {test_part: 'ct_tig', correct_response: correct, stimulus: sunburst}
@@ -714,11 +725,11 @@
       type: "html-keyboard-response",
       stimulus: '',
       //trial_duration: 4000,
-      choices: ['T', 'F',],
+      choices: ['L', 'M',],
       on_start: function(trial) {
         var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(14) + '</div>';
-        var correct = 'F';
-        var question = '<div class="center"><p>"Is this a Tig (T) or a Fep (F)?"</p></div>';
+        var correct = 'M';
+        var question = '<div class="center"><p>"Is this a Lif (L) or a Mep (M)?"</p></div>';
         var stimulus = sunburst + question;
         trial.stimulus = stimulus;
         trial.data = {test_part: 'ct_tig', correct_response: correct, stimulus: sunburst}
@@ -734,7 +745,7 @@
       //trial_duration: 4000,
       choices: ['M', 'L',],
       on_start: function(trial) {
-        var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(4) + '</div>';
+        var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(1) + '</div>';
         var correct = 'L';
         var question = '<div class="center"><p>"2000 dots?"</p></div>';
         var stimulus = sunburst + question;
@@ -817,12 +828,12 @@
       type: "html-keyboard-response",
       stimulus: '',
       trial_duration: 4000,
-      choices: ['T', 'F',],
+      choices: ['L', 'M',],
       on_start: function(trial) {
         var random = randomize_sunburst();
         var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(random) + '</div>';
-        var correct_response = tig_fep(random);
-        var question = '<div class="center"><p>"Is this a Tig (T) or a Fep (F)?"</p></div>';
+        var correct_response = lif_mep(random);
+        var question = '<div class="center"><p>"Is this a Lif (L) or a Mep (M)?"</p></div>';
         var stimulus = sunburst + question;
         trial.stimulus = stimulus;
         trial.data = {

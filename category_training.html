@@ -76,10 +76,10 @@
     }
 
   //HELPERS
-    // determines if the sunburst is a tig or a fep
-    function tig_fep(sunburst) {
-      if (sunburst <= 8) {var correct = 'T';}
-      else {var correct = 'F';}
+    // determines if the sunburst is a lif or a mep
+    function lif_mep(sunburst) {
+      if (sunburst <= 8) {var correct = 'L';}
+      else {var correct = 'M';}
       return correct;
     }
 
@@ -322,8 +322,8 @@
 
     function category_feedback() {
       var correct_response = jsPsych.data.get().last(1).values()[0].correct_response;
-      if (correct_response == 'T') {var feedback = 'Tig'}
-      else {var feedback = 'Fep'}
+      if (correct_response == 'L') {var feedback = 'Lif'}
+      else {var feedback = 'Mep'}
       return feedback;
     }
 
@@ -343,13 +343,13 @@
 
     var instructions = {
       type: "html-keyboard-response",
-      choices: 'T',
+      choices: 'L',
       stimulus: "In this second task, you will be asked to identify two different kinds of sunbursts. </p> \
-      <p>You will be presented with one sunburst at a time and asked, <em>Is this a <strong>Tig (T)</strong> or a <strong>Fep (F)</strong>?</em></p> \
-      <p>To indicate that the sunburst is a <strong>Tig</strong>, <em>press <strong>T</strong></em> on the keyboard. </p> \
-      <p>To indicate that the sunburst is a <strong>Fep</strong>, <em>press <strong>F</strong></em> on the keyboard. </p> \
+      <p>You will be presented with one sunburst at a time and asked, <em>Is this a <strong>Lif (L)</strong> or a <strong>Mep (M)</strong>?</em></p> \
+      <p>To indicate that the sunburst is a <strong>Lif</strong>, <em>press <strong>L</strong></em> on the keyboard. </p> \
+      <p>To indicate that the sunburst is a <strong>Mep</strong>, <em>press <strong>M</strong></em> on the keyboard. </p> \
       <p><div style='float: left;'><img src='jspsych-master/img/example_ct.png'></img></p> \
-      <p class='small'> ex. <strong>Press T</strong> to continue</p></div></p>",
+      <p class='small'> ex. <strong>Press L</strong> to continue</p></div></p>",
       post_trial_gap: 250,
     };
     timeline.push(instructions);
@@ -386,12 +386,12 @@
       type: "html-keyboard-response",
       stimulus: '',
       trial_duration: 4000,
-      choices: ['T', 'F',],
+      choices: ['L', 'M',],
       on_start: function(trial) {
         var random = randomize_sunburst();
         var sunburst = '<div class="oddball-stim">' + calculate_sunburst_values(random) + '</div>';
-        var correct_response = tig_fep(random);
-        var question = '<div class="center"><p>"Is this a Tig (T) or a Fep (F)?"</p></div>';
+        var correct_response = lif_mep(random);
+        var question = '<div class="center"><p>"Is this a Lif (L) or a Mep (M)?"</p></div>';
         var stimulus = sunburst + question;
         trial.stimulus = stimulus;
         trial.data = {
