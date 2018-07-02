@@ -381,61 +381,55 @@
     }
 
     // returns question for number judgement task
-    function nj_helper(dimension, random, x_dim, y_dim, dl, ml) {
+    function nj_helper(sb, ml) {
+      if (boolean()) {var dl = "dots"}
+      else {var dl = "lines"}
+      if (relevant_dimension == dl) {var distance = rel_wi_distance}
+      if (relevant_dimension != dl) {var distance = irr_distance}
       if (dl == "dots") {
         if (ml == "more") {
-          if (dimension == "dots") {
-            if (random == 1 || random == 2 || random == 3 || random == 4 || random == 5 || random == 6 || random == 7 || random == 8 || random == 13 || random == 14 || random == 15 || random == 16) {
-              var num_dim = x_dim - rel_wi_distance;
-              var number = Math.round(min_dot_density + (max_dot_density-min_dot_density)*num_dim);
-            } else {
-              var num_dim = x_dim - rel_be_distance;
-              var number = Math.round(min_dot_density + (max_dot_density-min_dot_density)*num_dim);
-            }
-          } else/* dimension == "lines" */{
-            var num_dim = x_dim - irr_distance;
-            var number = Math.round(min_dot_density + (max_dot_density-min_dot_density)*num_dim);
+          if (sb >= 5) {
+            var num_dim = calculate_x_values(sb-4);
+            var number = min_dot_density + (max_dot_density-min_dot_density)*num_dim;
+            number = round(number, -2);
+          } else {
+            var num_dim = calculate_x_values(sb)-distance;
+            var number = min_dot_density + (max_dot_density-min_dot_density)*num_dim;
+            number = round(number, -2);
+            if(number<0) {number=50}
           }
         } else/* ml == "less" */{
-          if (dimension == "dots") {
-            if (random == 1 || random == 2 || random == 3 || random == 4 || random == 9 || random == 10 || random == 11 || random == 12 || random == 13 || random == 14 || random == 15 || random == 16) {
-              var num_dim = x_dim + rel_wi_distance;
-              var number = Math.round(min_dot_density + (max_dot_density-min_dot_density)*num_dim);
-            } else {
-              var num_dim = x_dim + rel_be_distance;
-              var number = Math.round(min_dot_density + (max_dot_density-min_dot_density)*num_dim);
-            }
-          } else/* dimension == "lines" */{
-            var num_dim = x_dim + irr_distance;
-            var number = Math.round(min_dot_density + (max_dot_density-min_dot_density)*num_dim);
+          if (sb <= 12) {
+            var num_dim = calculate_x_values(sb+4);
+            var number = min_dot_density + (max_dot_density-min_dot_density)*num_dim;
+            number = round(number, -2);
+          } else {
+            var num_dim = calculate_x_values(sb)+distance;
+            var number = min_dot_density + (max_dot_density-min_dot_density)*num_dim;
+            number = round(number, -2);
           }
         }
       } else/* dl == "lines" */{
         if (ml == "more") {
-          if (dimension == "dots") {
-            var num_dim = x_dim - irr_distance;
-            var number = Math.round(min_line_density + (max_line_density-min_line_density)*num_dim);
-          } else/* dimension == "lines" */{
-            if (random == 1 || random == 2 || random == 3 || random == 4 || random == 5 || random == 6 || random == 7 || random == 8 || random == 13 || random == 14 || random == 15 || random == 16) {
-              var num_dim = x_dim - rel_wi_distance;
-              var number = Math.round(min_line_density + (max_line_density-min_line_density)*num_dim);
-            } else {
-              var num_dim = x_dim - rel_be_distance;
-              var number = Math.round(min_line_density + (max_line_density-min_line_density)*num_dim);
-            }
+          if (sb%4==1) {
+            var num_dim = calculate_y_values(sb)-distance;
+            var number = min_line_density + (max_line_density-min_line_density)*num_dim;
+            number = round(number, -1);
+            if(number<0) {number=10}
+          } else {
+            var num_dim = calculate_y_values(sb-1);
+            var number = min_line_density + (max_line_density-min_line_density)*num_dim;
+            number = round(number, -1);
           }
         } else/* ml == "less" */{
-          if (dimension == "dots") {
-            var num_dim = x_dim + irr_distance;
-            var number = Math.round(min_line_density + (max_line_density-min_line_density)*num_dim);
-          } else/* dimension == "lines" */{
-            if (random == 1 || random == 2 || random == 3 || random == 4 || random == 9 || random == 10 || random == 11 || random == 12 || random == 13 || random == 14 || random == 15 || random == 16) {
-              var num_dim = x_dim + rel_wi_distance;
-              var number = Math.round(min_line_density + (max_line_density-min_line_density)*num_dim);
-            } else {
-              var num_dim = x_dim + rel_be_distance;
-              var number = Math.round(min_line_density + (max_line_density-min_line_density)*num_dim);
-            }
+          if (sb%4==0) {
+            var num_dim = calculate_y_values(sb)+distance;
+            var number = min_line_density + (max_line_density-min_line_density)*num_dim;
+            number = round(number, -1);
+          } else {
+            var num_dim = calculate_y_values(sb+1)
+            var number = min_line_density + (max_line_density-min_line_density)*num_dim;
+            number = round(number, -1);
           }
         }
       }
@@ -848,20 +842,16 @@
       trial_duration: 4000,
       choices: ['M', 'L',],
       on_start: function(trial) {
-        var dimension = relevant_dimension;
-        var random = randomize_sunburst();
-        var x_dim = calculate_x_values(random);
-        var y_dim = calculate_y_values(random);
+        var sb = randomize_sunburst();
+        var x_dim = calculate_x_values(sb);
+        var y_dim = calculate_y_values(sb);
         var sunburst = '<div class="oddball-stim">' + generate_stim(x_dim, y_dim) + '</div>';
         var dots = min_dot_density + (max_dot_density-min_dot_density)*x_dim;
         var lines = min_line_density + (max_line_density-min_line_density)*y_dim;
-        var bool1 = boolean();
-        var bool2 = boolean();
-        if (bool1) {var dl = "dots"}
-        else {var dl = "lines"}
-        if (bool2) {var ml = "more"}
+        var bool = boolean();
+        if (bool) {var ml = "more"}
         else {"less"}
-        var question = nj_helper(dimension, random, x_dim, y_dim, dl, ml);
+        var question = nj_helper(sb, ml);
         if (ml == "more") {var correct_response = 'M'}
         else {correct_response = 'L'}
         var stimulus = sunburst + question;
