@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Categorical Perception Experiment</title>
+    <title>Phase One</title>
     <script src="jspsych-master/jspsych.js"></script>
     <script src="jspsych-master/plugins/jspsych-html-keyboard-response.js"></script>
     <script src="jspsych-master/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-master/plugins/jspsych-survey-text.js"></script>
     <script src="jspsych-master/plugins/jspsych-image-keyboard-response.js"></script>
     <link rel="stylesheet" href="jspsych-master/css/jspsych.css"></link>
     <style>
@@ -411,7 +412,7 @@
     }
     timeline.push(overview)
 
-    var ob_instructions = {
+    var instructions = {
       type: "html-keyboard-response",
       choices: '1',
       stimulus: "Four sunbursts will appear in the center of the screen. Use the number keys on the top left of your keyboard.<p> \
@@ -422,9 +423,9 @@
       post_trial_gap: 250,
       data: {test_part: 'instructions'}
     };
-    timeline.push(ob_instructions);
+    timeline.push(instructions);
 
-    var ob_instructions_pt2 = {
+    var instructions_pt2 = {
       type: "html-keyboard-response",
       stimulus: "<p> On each trial you will have up to <strong>4 seconds</strong> to enter your response. </p> \
       <p>After that, it will move on to the next trial, so please do your best to respond within that time! </p> \
@@ -434,7 +435,7 @@
       post_trial_gap: 250,
       data: {test_part: 'instructions'}
     };
-    timeline.push(ob_instructions_pt2);
+    timeline.push(instructions_pt2);
 
     var three = {
       type: 'html-keyboard-response',
@@ -601,7 +602,7 @@
 
     var phase_one = {
       timeline: [pause, test, feedback],
-      repetitions: 60,
+      repetitions: 1,
       /*loop_function: function(data) {
         if (dot_stop_crit() && line_stop_crit()) {return false}
         else {return true}
@@ -609,8 +610,8 @@
     }
     timeline.push(phase_one);
 
-/*    var survey = {
-      type: 'survey-text',
+    var survey = {
+      type: "survey-text",
       preamble: "<p>Please use this space to provide feedback on the experiment, such as:</p>",
       button_label: ["continue"],
       questions: [
@@ -623,7 +624,7 @@
       ],
     }
     timeline.push(survey);
-*/
+
     var debrief = {
       type: "html-keyboard-response",
       choices: jsPsych.NO_KEYS,
